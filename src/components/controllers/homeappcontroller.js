@@ -5,10 +5,12 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { RectAreaLightHelper }  from 'three/examples/jsm/helpers/RectAreaLightHelper.js';
 import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
 import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
-import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 let homeApp;
 let scrollY = window.scrollY;
@@ -67,7 +69,7 @@ const initHomeApp = function () {
                     </div>
                     <div style="display:flex;height:2.5em;margin-top: 0.75em;justify-content:space-between;padding-top:0.25rem;align-items:center;line-height:1">
                         <p class="p-price">&#8377; {{propertyData.price}} {{propertyData.unit}} onwards</p>
-                        <button class="viewButton">View Details</button>
+                        <button class="viewButton" @click="showProperty">View Details</button>
                     </div>
                 </div>
             </div>   
@@ -182,13 +184,22 @@ const initHomeApp = function () {
                 this.dom.appendChild( this.renderer.domElement );
                 this.renderer.setClearColor( 0x000000, 0 );
 
-                // this.controls = new OrbitControls( this.camera, this.renderer.domElement );
-                // this.controls.enableDamping = !1,
-                // this.controls.dampingFactor = .08,
-                // this.controls.minDistance = 0,
-                // this.controls.maxDistance = 3500,
-                // this.controls.maxPolarAngle = Math.PI,
-                
+                // this.controls = new OrbitControls( this.camera, this.renderer.domElement );                
+
+                const renderScene = new RenderPass( this.scene, this.camera );
+
+				const bloomPass = new UnrealBloomPass( new THREE.Vector2( this.canvaWidth, this.canvaHeight ), 1.5, 0.4, 0.85 );
+				bloomPass.threshold = 0.5;
+				bloomPass.strength = 0.2;
+				bloomPass.radius = 0.5;
+
+				const outputPass = new OutputPass();
+
+				this.composer = new EffectComposer( this.renderer );
+				this.composer.addPass( renderScene );
+				this.composer.addPass( bloomPass );
+				this.composer.addPass( outputPass );
+
                 // this.controls.addEventListener('change', this.onCameraChange);
                 this.ambLight = new THREE.AmbientLight( 0xffffff ); // soft white light
                 // this.scene.add( this.ambLight );
@@ -251,23 +262,25 @@ const initHomeApp = function () {
                 );
             },
             tick(){
-                const sectionHeight=Math.ceil(maxScroll/this.campositions.length);
+                const sectionHeight=Math.ceil(maxScroll/(this.campositions.length));
                 // console.log(sectionHeight);
                 // const n = Math.floor(scrollY/this.canvaHeight);
-                const n = Math.floor(scrollY/sectionHeight);
-                const factor = (scrollY-n*sectionHeight)/(sectionHeight);
+                const n = Math.floor(scrollY/(sectionHeight*0.8));
+                const factor = (scrollY-n*sectionHeight*0.8)/(sectionHeight*0.8);
+                if(n<this.campositions.length-1){
                 const curPos = this.campositions[n][0];
                 const curLook = this.campositions[n][1];
                 const pos = new THREE.Vector3(curPos.x,curPos.y,curPos.z).lerp(this.campositions[n+1][0],factor);
                 const look = new THREE.Vector3(curLook.x,curLook.y,curLook.z).lerp(this.campositions[n+1][1],factor);
                 this.camera.position.set(pos.x,pos.y,pos.z);
-                // console.log(pos);
                 this.camera.lookAt(look);
+                }
 
             },
             animate(){
                 this.renderer.render( this.scene, this.camera );
                 this.tick();
+                this.composer.render();
             },
             startRendering(){
                 this.renderer.setAnimationLoop(this.animate);
@@ -292,6 +305,10 @@ const initHomeApp = function () {
                     <h1 class="infoHead">Location with Unlimited Potential</h1>
                     <p class="infoBody">{{propertyData.details}}</p>
                 </div>
+                <div style="margin-left:40%" class="infoSectionBlock">
+                <h1 class="infoHead">Location with Unlimited Potential</h1>
+                <p class="infoBody">{{propertyData.details}}</p>
+            </div>
             </div>
         `
     });

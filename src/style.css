@@ -371,7 +371,7 @@ z-index: 10;
   text-align: left;
   width: 60vw;
   align-items: center;
-  height: 100vh;
+  height: calc(150vh - 25rem);
 }
 .titleSub{
   display: block;
@@ -386,7 +386,7 @@ z-index: 10;
   /* margin-top: 100vh; */
   margin-left: 3rem;
   width: 60%;
-  height: 100vh;
+  height: 150vh;
   align-items: center;
 }
 .infoHead{
