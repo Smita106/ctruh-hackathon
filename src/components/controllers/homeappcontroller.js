@@ -1,8 +1,19 @@
 import { createApp } from "vue/dist/vue.esm-bundler.js";
 import { Slider } from "./slider";
 import properties from "../../assets/js/propertyData";
-let homeApp;
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RectAreaLightHelper }  from 'three/examples/jsm/helpers/RectAreaLightHelper.js';
+import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
+let homeApp;
+let scrollY = window.scrollY;
+let maxScroll = Math.max( document.body.scrollHeight, document.body.offsetHeight, 
+    document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight );
 const showPropertyEvent = new CustomEvent('showpropertyevent',{
     detail:{
         propertyid:null
@@ -45,29 +56,260 @@ const initHomeApp = function () {
             <div class="propertyContanier" :style="{'height': tileh, 'width': tilew, 'margin-right':rightmargin}">
                 <div class="propertyImageContainer" @click="showProperty()">
                     <img class="propertyImage" :src="getImageSrc()"/>
+                    <div class="propertyBadge">SALE</div>
                 </div>
                 <div class="propertyInfoContainer">
-                    <div class="p-price">&#8377;{{propertyData.price}}</div>
                     <div class="p-name" @click="showProperty()">{{propertyData.name}}</div>
-                    <div class="p-color" :style="{'display':isTile}">{{getColorText()}}</div> 
+                    <div class="p-builder">By {{propertyData.builder}}</div>
+                    <div style="display:flex;align-items:center">
+                        <svg viewBox="0 0 12 16" height="15" width="15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.38338 15.6772C0.842813 9.09472 0 8.41916 0 6C0 2.68628 2.68628 0 6 0C9.31372 0 12 2.68628 12 6C12 8.41916 11.1572 9.09472 6.61662 15.6772C6.31866 16.1076 5.68131 16.1076 5.38338 15.6772ZM6 8.5C7.38072 8.5 8.5 7.38072 8.5 6C8.5 4.61928 7.38072 3.5 6 3.5C4.61928 3.5 3.5 4.61928 3.5 6C3.5 7.38072 4.61928 8.5 6 8.5Z" fill="#626262"></path></svg>
+                        <span class="p-address">{{propertyData.address}}</span>
+                    </div>
+                    <div style="display:flex;height:2.5em;margin-top: 0.75em;justify-content:space-between;padding-top:0.25rem;align-items:center;line-height:1">
+                        <p class="p-price">&#8377; {{propertyData.price}} {{propertyData.unit}} onwards</p>
+                        <button class="viewButton">View Details</button>
+                    </div>
                 </div>
             </div>   
         `
     });
+    homeApp.component('catalog',{
+        props:[],
+        data(){
+            return{
+                rootCmp: homeApp,
+                colSize:3,
+            };
+        },
+        created(){
+            homeApp._props.properties = properties;
+        },
+        mounted(){
+            const slider = new Slider();
+        },
+        methods:{
+            getRowNum(){
+                return Math.ceil(this.rootCmp._props.properties.length/this.colSize);
+            },
+            getIndex(row,col){
+                return (row-1)*this.colSize + (col);
+            },
+            isCellAvailable(row,col){
+                if(this.getIndex(row,col) > this.rootCmp._props.properties.length)
+                    return false;
+                return true;
+            },
+        },
+        template:`
+            <div style="display:flex;flex-direction:column">
+                <div id="finderContainerBlock" class="slider js-slider">
+                    <div class="slider__inner js-slider__inner"></div>
+                    <div style="background:#000;opacity:0.5;height:100%;width:100%;display:flex;position:absolute"></div>
+                    <div id="filterContainer">
+                        <h1 id="filterHeading">
+                            Find Your <span style="color:rgb(255,54,110);font-weight: 600;">Perfect Home</span>
+                        </h1>
+                        <div id="filterBlock">
+                            <div style="width:80%;height:2em;margin-left:-1.5rem"><span style="color:white;height:2em;">Buy your Perfect Home</span></div>
+                            <div id="filterDiv">
+                                <div class="filterCell"><div class="filterItem">Search Location</div></div>
+                                <div class="filterCell"><div class="filterItem">Builders<div class="downarrow"></div></div></div>
+                                <div class="filterCell"><div class="filterItem">Add Property<div class="downarrow"></div></div></div>
+                                <div class="filterCell"><div class="filterItem">Budget<div class="downarrow"></div></div></div>
+                                <button id="filterSearch">SEARCH</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="catalogBody">
+                    <div id="catalogHeader">Premium Projects</div>
+                    <table id="collectionTable">
+                        <tr v-for="row in Number(getRowNum())">
+                            <td class="propertyGrid" v-for="col in Number(colSize)">
+                                <property v-if="isCellAvailable(row,col)" :propertyData="rootCmp._props.properties[getIndex(row,col)-1]"></property>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        `
+    });
+
+    homeApp.component('propertyviewer',{
+        props:['propertyID','propertyData'],
+        data(){
+            return{};
+        },
+        created(){
+            scrollY = window.scrollY;
+            window.addEventListener('scroll', () =>{scrollY = window.scrollY;
+                // console.log(scrollY,scrollY/this.canvaHeight);
+            });
+        },
+        mounted(){
+            this.dom = document.getElementById("viewerDiv");
+            this.initScene();
+        },
+        methods:{
+            onCameraChange() {
+                console.log("Camera:");
+                console.log("Fov:", this.camera.fov);
+                console.log("Zoom: ", this.camera.zoom);
+                console.log("lookat: ", this.camera);
+                console.log("Position: ", this.camera.position);
+                console.log("Controls:");
+                console.log("target:", this.controls.target);
+              },
+            initScene(){
+                 this.campositions = [[new THREE.Vector3(1307,164,1314), new THREE.Vector3(-221, 847, 199)]
+                 ,[new THREE.Vector3(2938, 463, 1913), new THREE.Vector3(-550, 550, 600)]
+                 ,[new THREE.Vector3(245,512,2084), new THREE.Vector3(380,488, -172)]
+                 ,[new THREE.Vector3(829,30,852), new THREE.Vector3(2,162, 165)]];
+
+                this.canvaWidth = this.dom.getBoundingClientRect().width;
+                this.canvaHeight = this.dom.getBoundingClientRect().height;
+                this.scene = new THREE.Scene();
+                RectAreaLightUniformsLib.init();
+                this.camera = new THREE.PerspectiveCamera(10, this.canvaWidth /  this.canvaHeight, 10, 10000);
+                this.renderer = new THREE.WebGLRenderer({antialias:true});
+                this.renderer.physicallyCorrectLights = true;
+                this.renderer.setSize( this.canvaWidth, this.canvaHeight );
+                this.renderer.domElement.style.height = `${this.canvaHeight} + 'px'`;
+                this.renderer.domElement.style.width = `${this.canvaWidth} + 'px'`; 
+                this.renderer.domElement.width = this.canvaWidth;
+                this.renderer.domElement.height = this.canvaHeight;
+                this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+                this.dom.appendChild( this.renderer.domElement );
+                this.renderer.setClearColor( 0x000000, 0 );
+
+                // this.controls = new OrbitControls( this.camera, this.renderer.domElement );
+                // this.controls.enableDamping = !1,
+                // this.controls.dampingFactor = .08,
+                // this.controls.minDistance = 0,
+                // this.controls.maxDistance = 3500,
+                // this.controls.maxPolarAngle = Math.PI,
+                
+                // this.controls.addEventListener('change', this.onCameraChange);
+                this.ambLight = new THREE.AmbientLight( 0xffffff ); // soft white light
+                // this.scene.add( this.ambLight );
+                const helper = new THREE.CameraHelper( this.camera );
+                // this.scene.add( helper );
+                // this.camera.position.set(1307,164,1314);
+                this.camera.position.set(this.campositions[0][0].x,this.campositions[0][0].y,this.campositions[0][0].z);
+                this.currentPos = this.campositions[0];
+                this.nextPos = this.campositions[1];
+                // this.camera.lookAt(new THREE.Vector3(-436, 539, 388));
+                this.camera.lookAt(this.campositions[0][1]);
+                // this.camera.lookAt(pos1[1]);
+                this.camera.zoom = 0.5;
+                this.camera.updateProjectionMatrix();
+                if(this.propertyData.objModelName!=null){
+                    this.loadProductGltfModel();
+                }
+				const pmremGenerator = new THREE.PMREMGenerator( this.renderer );
+				pmremGenerator.compileEquirectangularShader();
+                THREE.DefaultLoadingManager.onLoad = function ( ) {
+					pmremGenerator.dispose();
+				};
+                let background = null;
+                new EXRLoader().load( './src/assets/model/venice_sunset_resized.exr', this.envLoadComplete );
+                new THREE.TextureLoader().load( './src/assets/model/sky7.jpg', this.bgLoadComplete );
+                maxScroll = Math.max( document.body.scrollHeight, document.body.offsetHeight, 
+                    document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight );
+                this.startRendering();
+            },
+            envLoadComplete(texture){
+                texture.mapping = THREE.EquirectangularReflectionMapping;
+                this.scene.environment = texture;
+            },
+            bgLoadComplete(texture){
+                texture.mapping = THREE.EquirectangularReflectionMapping;
+                this.scene.background=texture;
+            },
+            loadComplete(gltf){
+                this.scene.add( gltf.scene );
+                gltf.scene.position.y = -15;
+                gltf.scene.scale.set(1,1,1);
+                gltf.scene.rotation.set(0,290*Math.PI/180,0);
+            },
+            loadProductGltfModel(){
+                const loader = new GLTFLoader();
+                const dracoLoader = new DRACOLoader();
+                dracoLoader.setDecoderConfig({ type: 'js' });
+                dracoLoader.setDecoderPath( 'https://www.gstatic.com/draco/v1/decoders/' );
+                loader.setDRACOLoader( dracoLoader );
+                loader.load(
+                    './src/assets/model/' + this.propertyData.objModelName,
+                    this.loadComplete,
+                    function ( xhr ) {
+                        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+                    },
+                    function ( error ) {
+                        console.error(error);
+                        console.log( 'An error happened' );
+                    }
+                );
+            },
+            tick(){
+                const sectionHeight=Math.ceil(maxScroll/this.campositions.length);
+                // console.log(sectionHeight);
+                // const n = Math.floor(scrollY/this.canvaHeight);
+                const n = Math.floor(scrollY/sectionHeight);
+                const factor = (scrollY-n*sectionHeight)/(sectionHeight);
+                const curPos = this.campositions[n][0];
+                const curLook = this.campositions[n][1];
+                const pos = new THREE.Vector3(curPos.x,curPos.y,curPos.z).lerp(this.campositions[n+1][0],factor);
+                const look = new THREE.Vector3(curLook.x,curLook.y,curLook.z).lerp(this.campositions[n+1][1],factor);
+                this.camera.position.set(pos.x,pos.y,pos.z);
+                // console.log(pos);
+                this.camera.lookAt(look);
+
+            },
+            animate(){
+                this.renderer.render( this.scene, this.camera );
+                this.tick();
+            },
+            startRendering(){
+                this.renderer.setAnimationLoop(this.animate);
+            },
+            stopRendering(){
+                this.renderer.setAnimationLoop(null);
+            }
+        },
+        template:`
+            <div id="viewerDiv">
+            </div>
+            <div id="contentDiv">
+                <div class="titleDiv">
+                    <span style="font-size: 9em;">{{propertyData.title}}</span>
+                    <span class="titleSub">by <span style="color:#6e1a09;  font-size: 3rem;font-family: cursive;">{{propertyData.builder}}</span></span>
+                </div>
+                <div class="infoSectionBlock">
+                    <h1 class="infoHead">Luxury that's Limited Edition.</h1>
+                    <p class="infoBody">{{propertyData.description}}</p>
+                </div>
+                <div style="margin-left:40%" class="infoSectionBlock">
+                    <h1 class="infoHead">Location with Unlimited Potential</h1>
+                    <p class="infoBody">{{propertyData.details}}</p>
+                </div>
+            </div>
+        `
+    });
+
     homeApp.component('homeapp',{
         props:[],
         data(){
             return{
                 rootCmp: homeApp,
                 colSize:3,
-                showpropertyMode: false,
+                showPropertyMode: false,
                 activepropertyId:null,
                 activeproperty: null,
             };
         },
         created(){
             homeApp._props.properties = properties;
-            document.addEventListener('showPropertyevent',(e)=>{
+            document.addEventListener('showpropertyevent',(e)=>{
                 if(e.detail.propertyid!=null){
                     this.activepropertyId = e.detail.propertyid;
                     const pr = homeApp._props.properties.filter((p)=> p.id === this.activepropertyId);
@@ -76,13 +318,12 @@ const initHomeApp = function () {
                         this.showPropertyMode = true;
                         document.body.scrollTop = 0; // For Safari
                         document.documentElement.scrollTop = 0; 
-                        document.dispatchEvent(new Event('resetviewer'));
+                        // document.dispatchEvent(new Event('resetviewer'));
                     }
                 }
             });
         },
         mounted(){
-            const slider = new Slider();
         },
         methods:{
             getRowNum(){
@@ -124,37 +365,9 @@ const initHomeApp = function () {
                     </ul>
                 </nav>
             </div>
-            <div style="display:flex;flex-direction:column">
-                <div id="finderContainerBlock" class="slider js-slider">
-                    <div class="slider__inner js-slider__inner"></div>
-                    <div style="background:#000;opacity:0.5;height:100%;width:100%;display:flex;position:absolute"></div>
-                    <div id="filterContainer">
-                        <h1 id="filterHeading">
-                            Find Your <span style="color:rgb(255,54,110);font-weight: 600;">Perfect Home</span>
-                        </h1>
-                        <div id="filterBlock">
-                            <div style="width:80%;height:2em;margin-left:-1.5rem"><span style="color:white;height:2em;">Buy your Perfect Home</span></div>
-                            <div id="filterDiv">
-                                <div class="filterCell"><div class="filterItem">Search Location</div></div>
-                                <div class="filterCell"><div class="filterItem">Builders<div class="downarrow"></div></div></div>
-                                <div class="filterCell"><div class="filterItem">Add Property<div class="downarrow"></div></div></div>
-                                <div class="filterCell"><div class="filterItem">Budget<div class="downarrow"></div></div></div>
-                                <button id="filterSearch">SEARCH</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div id="catalogBody">
-                    <div id="catalogHeader">Premium Projects</div>
-                    <table id="collectionTable">
-                        <tr v-for="row in Number(getRowNum())">
-                            <td class="propertyGrid" v-for="col in Number(colSize)">
-                                <property v-if="isCellAvailable(row,col)" :propertyData="rootCmp._props.properties[getIndex(row,col)-1]"></property>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
+            <propertyviewer v-if="showPropertyMode && activepropertyId!=null && activeproperty!=null"
+             :propertyID="activepropertyId" :propertyData="activeproperty"></propertyviewer>
+            <catalog v-else></catalog>
             <div id="footerBlock">
                 <div id="footerHead">MyHome private limited</div>
             </div>

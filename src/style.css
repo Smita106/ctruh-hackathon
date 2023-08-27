@@ -1,3 +1,6 @@
+html{
+  scroll-behavior: smooth;
+}
 body{
   margin: 0;
 }
@@ -114,9 +117,9 @@ letter-spacing: 0.05em;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  text-align: center;
-  padding: 0 6em;
+  padding: 0 8em;
   background: #e2e1e0;
+  padding-bottom: 1em;
 }
 #collectionTable{
   table-layout: fixed ;
@@ -139,22 +142,23 @@ letter-spacing: 0.05em;
   width: calc(25% - 20px);
 }
 .propertyContanier{
-  height: 50vh;
-  width: 95%;
+  height: 56vh;
+  width: 93%;
   justify-content: space-between;
   align-items: center;
   background: #fff;
-  border-radius: 5px;
+  border-radius: 0.25rem;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
   transition: all 0.3s cubic-bezier(.25,.8,.25,1);
-  padding: 5px;
+  padding: 15px;
+  overflow: hidden;
 }
 .propertyContanier:hover {
   box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
 }
 .propertyImageContainer{
   position: relative;
-  height: 75%;
+  height: 55%;
   width: 100%;
   cursor: pointer;
 }
@@ -162,38 +166,100 @@ letter-spacing: 0.05em;
   position: relative;
   height: 100%;
   width: 100%;
-  object-fit: contain;
+  object-fit: fill;
+  border-radius: 0.25rem;
+}
+.propertyBadge{
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-right: 1rem;
+  display: flex;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  align-items: center;
+  height: 1.75rem;
+  font-size: .875rem;
+  line-height: 1.25rem;
+  color: rgb(229,123,53);
+  background-color: rgb(253,244,239);
+  border-bottom-left-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
 }
 
 .propertyInfoContainer{
-  padding-left: 1em;
-  height: 25%;
+  padding-top: 1em;
+  height: calc(45% - 15px);
   font-family: Arial, Helvetica, sans-serif;
 }
 .p-price{
   margin-top: 10px;
   width: 100%;
   padding: 5px 0px;
-  font-size: 16px;
-  font-weight:600;
+  font-weight:400;
+  color:rgb(58,57,57);
+  font-size: 1rem;
+  line-height: 1.25rem;
 }
 
 .p-name{
   width: 100%;
   padding: 2px 0px;
-  font-size: 14px;
+  font-size: 1.2rem;
+  line-height: 1.75rem;
+  color:rgb(81, 81, 81);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 0.5em;
 }
-
+.p-builder{
+  width: 100%;
+  padding: 2px 0px;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  color:rgb(98, 98, 98);
+  font-weight: 400;
+}
 .p-color{
   margin-top: 5px;
   font-size: 12px;
   font-weight: 600;
   color: #929292;
 }
+.p-address{
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  padding-left: 0.5rem;
+  flex: 1 1 0%;
+  color:rgb(98, 98, 98);
+}
+
+.viewButton{
+  font-weight: 600;
+  font-size: .875rem;
+  width: 60%;
+  height: 100%;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  background-color: rgb(213,0,59);
+  border-radius: 0.125rem;
+  cursor: pointer;
+  color: rgb(255,255,255);
+  border: none;
+  transition: 0.5s;
+}
+.viewButton:hover{
+  background-color: rgb(221, 106, 138);
+}
+
 .logo{
   position: absolute;
   top: 0.5rem;
-  left: 1rem;
+  left: 2rem;
   padding: 0;
   margin: 0;
   z-index: 10;
@@ -281,4 +347,56 @@ z-index: 10;
   font-family: Arial, Helvetica, sans-serif;
   margin-left: 1.5em;
   padding-top: 2em;
+}
+
+#viewerDiv{
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+  z-index: 1;
+}
+
+#contentDiv{
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  flex-flow: column;
+}
+
+.titleDiv{
+  margin-top: 25rem;
+  margin-left: 3rem;
+  color: #ffffff;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  text-align: left;
+  width: 60vw;
+  align-items: center;
+  height: 100vh;
+}
+.titleSub{
+  display: block;
+  color: white;
+  font-size: 2rem;
+  line-height: 2em;
+  margin-top: 0;
+  /* margin-left: 20em; */
+  font-family: Arial, Helvetica, sans-serif;
+}
+.infoSectionBlock{
+  /* margin-top: 100vh; */
+  margin-left: 3rem;
+  width: 60%;
+  height: 100vh;
+  align-items: center;
+}
+.infoHead{
+  font-size: 3em;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #ffffff;
+}
+.infoBody{
+  font-size: 1.75em;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #1d1d1d;
+  text-align: left;
 }
