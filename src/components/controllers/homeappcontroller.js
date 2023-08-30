@@ -11,9 +11,19 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
+const params = {
+    x: 20,
+    y: 500,
+    z: 400,
+    r: 0,
+};
 let homeApp;
 let scrollY = window.scrollY;
+let mouse = new THREE.Vector2()
+let target = new THREE.Vector2()
 let maxScroll = Math.max( document.body.scrollHeight, document.body.offsetHeight, 
     document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight );
 const showPropertyEvent = new CustomEvent('showpropertyevent',{
@@ -140,12 +150,17 @@ const initHomeApp = function () {
     homeApp.component('propertyviewer',{
         props:['propertyID','propertyData'],
         data(){
-            return{};
+            return{
+                isLoadComplete: false,
+                loadProgressValue: 0,
+            };
         },
         created(){
+            document.body.style.overflow = 'hidden';
             scrollY = window.scrollY;
-            window.addEventListener('scroll', () =>{scrollY = window.scrollY;
-                // console.log(scrollY,scrollY/this.canvaHeight);
+            window.addEventListener('scroll', () =>{scrollY = window.scrollY;});
+            document.addEventListener('mousemove',(e)=>{
+                if(this.isLoadComplete){this.onMouseMove(e);}
             });
         },
         mounted(){
@@ -163,6 +178,7 @@ const initHomeApp = function () {
                 console.log("target:", this.controls.target);
               },
             initScene(){
+
                  this.campositions = [[new THREE.Vector3(1307,164,1314), new THREE.Vector3(-221, 847, 199)]
                  ,[new THREE.Vector3(2938, 463, 1913), new THREE.Vector3(-550, 550, 600)]
                  ,[new THREE.Vector3(245,512,2084), new THREE.Vector3(380,488, -172)]
@@ -184,7 +200,7 @@ const initHomeApp = function () {
                 this.dom.appendChild( this.renderer.domElement );
                 this.renderer.setClearColor( 0x000000, 0 );
 
-                // this.controls = new OrbitControls( this.camera, this.renderer.domElement );                
+                this.controls = new OrbitControls( this.camera, this.renderer.domElement );                
 
                 const renderScene = new RenderPass( this.scene, this.camera );
 
@@ -194,13 +210,18 @@ const initHomeApp = function () {
 				bloomPass.radius = 0.5;
 
 				const outputPass = new OutputPass();
+                const pixelRatio = this.renderer.getPixelRatio();
+                this.fxaaPass = new ShaderPass( FXAAShader );
+                this.fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( this.canvaWidth * pixelRatio );
+				this.fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / ( this.canvaHeight * pixelRatio );
 
 				this.composer = new EffectComposer( this.renderer );
 				this.composer.addPass( renderScene );
 				this.composer.addPass( bloomPass );
 				this.composer.addPass( outputPass );
-
-                // this.controls.addEventListener('change', this.onCameraChange);
+                this.composer.addPass( this.fxaaPass );
+                
+                this.controls.addEventListener('change', this.onCameraChange);
                 this.ambLight = new THREE.AmbientLight( 0xffffff ); // soft white light
                 // this.scene.add( this.ambLight );
                 const helper = new THREE.CameraHelper( this.camera );
@@ -217,33 +238,97 @@ const initHomeApp = function () {
                 if(this.propertyData.objModelName!=null){
                     this.loadProductGltfModel();
                 }
+                this.addCloud();
 				const pmremGenerator = new THREE.PMREMGenerator( this.renderer );
 				pmremGenerator.compileEquirectangularShader();
                 THREE.DefaultLoadingManager.onLoad = function ( ) {
 					pmremGenerator.dispose();
 				};
+                this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
                 let background = null;
+
+                // const gui = new GUI();
+				// gui.add( params, 'x', -1000, 1000, 10 ).name( ' x' ).onChange( this.updateRot );
+				// gui.add( params, 'y', -1000, 1000, 10 ).name( ' y' ).onChange( this.updateRot );
+				// gui.add( params, 'z', -1000, 1000, 10 ).name( ' z' ).onChange( this.updateRot );
+				// gui.add( params, 'r', 0, 360, 2 ).name( ' rotY' ).onChange( this.updateRot );
                 new EXRLoader().load( './src/assets/model/venice_sunset_resized.exr', this.envLoadComplete );
+                // new EXRLoader().load( './src/assets/model/venice_sunset_resized.exr', this.bgLoadComplete );
                 new THREE.TextureLoader().load( './src/assets/model/sky7.jpg', this.bgLoadComplete );
+                // new THREE.TextureLoader().load( './src/assets/model/sky7.jpg', this.envLoadComplete );
                 maxScroll = Math.max( document.body.scrollHeight, document.body.offsetHeight, 
                     document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight );
                 this.startRendering();
             },
+            addCloudToScene(texture){
+                texture.wrapS = THREE.RepeatWrapping; 
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set( 1, 1 ); 
+                const material = new THREE.MeshBasicMaterial({ map : texture });
+                material.transparent = true;
+                material.map = texture;
+                const plane = new THREE.Mesh(new THREE.PlaneGeometry(556, 1024), material);
+                const plane2 = new THREE.Mesh(new THREE.PlaneGeometry(556, 1024), material);
+                plane.material.side = THREE.DoubleSide;
+                plane2.material.side = THREE.DoubleSide;
+                plane.scale.set(1.5,1.5,1.5);
+                plane.position.x = -620;
+                plane.position.y = 1000;
+                plane.position.z = 410;
+                plane2.position.set(-130,750,-1000);
+                plane.rotation.z = Math.PI / 2;
+                plane2.rotation.z = Math.PI / 2;
+                plane.rotation.y = 75*Math.PI/180;
+                plane2.rotation.y = 30*Math.PI/180;
+                this.scene.add(plane);
+                this.plane = plane;
+            },
+            addCloud(){
+
+                const text = new THREE.TextureLoader().load( "./src/assets/images/cloud.png" ,this.addCloudToScene);
+                // const texture = THREE.ImageUtils.loadTexture( "./src/assets/images/cloud.png" );
+                // assuming you want the texture to repeat in both directions:
+
+
+            },
             envLoadComplete(texture){
-                texture.mapping = THREE.EquirectangularReflectionMapping;
+                texture.mapping = THREE.EquirectangularReflectionMapping  ;
                 this.scene.environment = texture;
             },
             bgLoadComplete(texture){
-                texture.mapping = THREE.EquirectangularReflectionMapping;
+                texture.mapping = THREE.CubeReflectionMapping;
                 this.scene.background=texture;
             },
+            loadProgress(xhr){
+                this.loadProgressValue = xhr.loaded / xhr.total * 100;
+            },
+            updateRot(){
+                this.model.rotation.set(0,params.r*Math.PI/180,0);
+                this.model.scale.set(params.x,params.x,params.x);
+                // this.plane.rotation.set(0,params.r*Math.PI/180,Math.PI / 2);
+                // this.plane.position.set(params.x, params.y, params.z);
+            },
             loadComplete(gltf){
+                this.model=gltf.scene;
                 this.scene.add( gltf.scene );
                 gltf.scene.position.y = -15;
                 gltf.scene.scale.set(1,1,1);
                 gltf.scene.rotation.set(0,290*Math.PI/180,0);
+                document.body.style.removeProperty('overflow');
+                this.isLoadComplete = true;
+                if(this.propertyData.id ===2 ){
+                    this.model.scale.set(20,20,20);
+                    this.model.position.y = 100;
+                    this.model.rotation.set(0,30*Math.PI/180,0);
+                    this.campositions[0][0].x=860;
+                    this.campositions[0][0].y=183;
+                    this.campositions[0][0].z=857;
+                    this.campositions[0][1]=new THREE.Vector3(-100,210,82);
+                    this.camera.position.set(860,183,857);
+                    this.camera.lookAt(new THREE.Vector3(-100,210,82));
+                }
             },
-            loadProductGltfModel(){
+            async loadProductGltfModel(){
                 const loader = new GLTFLoader();
                 const dracoLoader = new DRACOLoader();
                 dracoLoader.setDecoderConfig({ type: 'js' });
@@ -252,14 +337,17 @@ const initHomeApp = function () {
                 loader.load(
                     './src/assets/model/' + this.propertyData.objModelName,
                     this.loadComplete,
-                    function ( xhr ) {
-                        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-                    },
+                    this.loadProgress,
                     function ( error ) {
                         console.error(error);
-                        console.log( 'An error happened' );
                     }
                 );
+            },
+            onMouseMove(event){
+                // mouse.x = ( event.clientX - this.canvaWidth );
+                // mouse.y = ( event.clientY - this.canvaHeight );
+                // target.x = mouse.x;
+                // target.y = mouse.y;
             },
             tick(){
                 const sectionHeight=Math.ceil(maxScroll/(this.campositions.length));
@@ -275,6 +363,10 @@ const initHomeApp = function () {
                 this.camera.position.set(pos.x,pos.y,pos.z);
                 this.camera.lookAt(look);
                 }
+                // target.x = ( 1 - mouse.x ) * 0.00002;
+                // target.y = ( 1 - mouse.y ) * 0.00002;
+                // this.camera.rotation.x += 0.05 * ( target.y - this.camera.rotation.x );
+                // this.camera.rotation.y += 0.05 * ( target.x - this.camera.rotation.y );
 
             },
             animate(){
@@ -290,6 +382,11 @@ const initHomeApp = function () {
             }
         },
         template:`
+            <div id="loaderBanner" v-if="!isLoadComplete">
+                <div style="width:50%;height:100vh;display:flex;align-items: center;justify-content: center;">
+                    <div id="loaderBar" :style="{'width': loadProgressValue + '%'}"></div>
+                </div>
+            </div>
             <div id="viewerDiv">
             </div>
             <div id="contentDiv">
@@ -301,14 +398,14 @@ const initHomeApp = function () {
                     <h1 class="infoHead">Luxury that's Limited Edition.</h1>
                     <p class="infoBody">{{propertyData.description}}</p>
                 </div>
-                <div style="margin-left:40%" class="infoSectionBlock">
+                <div style="margin-left:calc(40% - 4em)" class="infoSectionBlock">
                     <h1 class="infoHead">Location with Unlimited Potential</h1>
                     <p class="infoBody">{{propertyData.details}}</p>
                 </div>
-                <div style="margin-left:40%" class="infoSectionBlock">
-                <h1 class="infoHead">Location with Unlimited Potential</h1>
+                <div class="infoSectionBlock">
+                <h1 class="infoHead">World Class Amenities</h1>
                 <p class="infoBody">{{propertyData.details}}</p>
-            </div>
+                </div>
             </div>
         `
     });
@@ -356,7 +453,7 @@ const initHomeApp = function () {
             },
         },
         template:`
-            <div class="headerPanel">
+            <div class="headerPanel" :style="{'opacity': showPropertyMode ? '0.5':'1'}">
                 <figure class="logo">
                     <img src="./src/assets/images/logo.jpg">
                 </figure>

@@ -15,11 +15,12 @@ const properties = [
     {
         id:2,
         name: 'RUNWAL THE RESIDENCE - Malabar Hill, Mumbai',
+        title:'RUNWAL THE RESIDENCE',
         builder: 'Runwal Developers',
         price: 19.20,
         unit:'Cr',
         imagename: 'pr2.jpg',
-        objModelName: 'teamugblend.glb',
+        objModelName: 'beach-house8.glb',
         description: 'Slim style with a clean construction and essential details. This versatile jean features a comfortable silhouette, finished with a zip fly. The fabric is made using 22% certified recycled cotton, reducing the use of virgin resources. Crafted from denim with partially recycled fibres and a hint of stretch. It features a medium blue wash with a classic, subtly lived-in look.',
         details: 'Material:99%Cotton 1%Elastane-Spandex, Color:Blue,Occasion:Casual Wear,Fit: Slim,Waist: Mid Rise,Closure: Zip Fly',
         address:'Kilachand House, Nepean Sea Road, Vasant Vihar, Malabar Hill, Mumbai, Maharashtra, India'
@@ -27,6 +28,7 @@ const properties = [
     {
         id:3,
         name: 'GODREJ FIVE GARDENS Matunga East, Mumbai',
+        title:'FIVE GARDENS',
         builder: 'Godrej Properties',
         price: 9.30,
         unit:'Cr',
@@ -39,6 +41,7 @@ const properties = [
     {
         id:4,
         name: 'Rustomjee Aurelia',
+        title:'Rustomjee Aurelia',
         builder: 'Rustomjee Developers',
         price: 80.42,
         unit:'Lac',
@@ -51,6 +54,7 @@ const properties = [
     {
         id:5,
         name: 'Runwal Doris Manpada, Thane West',
+        title:'Runwal Doris',
         builder: 'Runwal Group',
         price: 1.35,
         unit:'Cr',
