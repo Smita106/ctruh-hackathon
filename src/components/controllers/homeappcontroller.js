@@ -1,6 +1,6 @@
 import { createApp } from "vue/dist/vue.esm-bundler.js";
 import { Slider } from "./slider";
-import properties from "../../assets/js/propertyData";
+import properties from "../../propertyData";
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader';
@@ -49,7 +49,7 @@ const initHomeApp = function () {
         },
         methods:{
             getImageSrc(){
-                return './src/assets/images/' + this.propertyData.imagename;
+                return '/assets/images/' + this.propertyData.imagename;
             },
             getColorText(){
                 const count = this.propertyData.color.split(',').length;
@@ -248,14 +248,14 @@ const initHomeApp = function () {
                 let background = null;
 
                 // const gui = new GUI();
-				// gui.add( params, 'x', -1000, 1000, 10 ).name( ' x' ).onChange( this.updateRot );
-				// gui.add( params, 'y', -1000, 1000, 10 ).name( ' y' ).onChange( this.updateRot );
-				// gui.add( params, 'z', -1000, 1000, 10 ).name( ' z' ).onChange( this.updateRot );
+				// gui.add( params, 'x', -1000, 1000, 0 ).name( ' x' ).onChange( this.updateRot );
+				// gui.add( params, 'y', -1000, 1000, 500 ).name( ' y' ).onChange( this.updateRot );
+				// gui.add( params, 'z', -1000, 1000, 0 ).name( ' z' ).onChange( this.updateRot );
 				// gui.add( params, 'r', 0, 360, 2 ).name( ' rotY' ).onChange( this.updateRot );
-                new EXRLoader().load( './src/assets/model/venice_sunset_resized.exr', this.envLoadComplete );
-                // new EXRLoader().load( './src/assets/model/venice_sunset_resized.exr', this.bgLoadComplete );
-                new THREE.TextureLoader().load( './src/assets/model/sky7.jpg', this.bgLoadComplete );
-                // new THREE.TextureLoader().load( './src/assets/model/sky7.jpg', this.envLoadComplete );
+                new EXRLoader().load( '/assets/model/venice_sunset_resized.exr', this.envLoadComplete );
+                // new EXRLoader().load( '/assets/model/venice_sunset_resized.exr', this.bgLoadComplete );
+                new THREE.TextureLoader().load( '/assets/model/sky7.jpg', this.bgLoadComplete );
+                // new THREE.TextureLoader().load( '/assets/model/sky7.jpg', this.envLoadComplete );
                 maxScroll = Math.max( document.body.scrollHeight, document.body.offsetHeight, 
                     document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight );
                 this.startRendering();
@@ -285,8 +285,8 @@ const initHomeApp = function () {
             },
             addCloud(){
 
-                const text = new THREE.TextureLoader().load( "./src/assets/images/cloud.png" ,this.addCloudToScene);
-                // const texture = THREE.ImageUtils.loadTexture( "./src/assets/images/cloud.png" );
+                const text = new THREE.TextureLoader().load( "/assets/images/cloud.png" ,this.addCloudToScene);
+                // const texture = THREE.ImageUtils.loadTexture( "/assets/images/cloud.png" );
                 // assuming you want the texture to repeat in both directions:
 
 
@@ -304,7 +304,7 @@ const initHomeApp = function () {
             },
             updateRot(){
                 this.model.rotation.set(0,params.r*Math.PI/180,0);
-                this.model.scale.set(params.x,params.x,params.x);
+                // this.model.scale.set(params.x,params.x,params.x);
                 // this.plane.rotation.set(0,params.r*Math.PI/180,Math.PI / 2);
                 // this.plane.position.set(params.x, params.y, params.z);
             },
@@ -335,7 +335,7 @@ const initHomeApp = function () {
                 dracoLoader.setDecoderPath( 'https://www.gstatic.com/draco/v1/decoders/' );
                 loader.setDRACOLoader( dracoLoader );
                 loader.load(
-                    './src/assets/model/' + this.propertyData.objModelName,
+                    '/assets/model/' + this.propertyData.objModelName,
                     this.loadComplete,
                     this.loadProgress,
                     function ( error ) {
@@ -455,7 +455,7 @@ const initHomeApp = function () {
         template:`
             <div class="headerPanel" :style="{'opacity': showPropertyMode ? '0.5':'1'}">
                 <figure class="logo">
-                    <img src="./src/assets/images/logo.jpg">
+                    <img src="/assets/images/logo.jpg">
                 </figure>
                 <nav id="navright" class="nav">
                     <ul class="slider-ul">
