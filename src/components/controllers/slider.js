@@ -64,9 +64,9 @@ class Slider {
       this.camera = null
 
     this.images = [
-        '/assets/images/sliderbg1.jpg',
-        '/assets/images/sliderbg2.jpg',
-        '/assets/images/sliderbg3.png'
+        './assets/images/sliderbg1.jpg',
+        './assets/images/sliderbg2.jpg',
+        './assets/images/sliderbg3.png'
       ]
       this.data = {
         current: 0,
@@ -160,7 +160,7 @@ class Slider {
         this.textures.push(texture)
       })
       
-      this.disp = loader.load('/assets/images/disp_reference.png', this.render)
+      this.disp = loader.load('./assets/images/disp_reference.png', this.render)
       this.disp.magFilter = this.disp.minFilter = THREE.LinearFilter
       this.disp.wrapS = this.disp.wrapT = THREE.RepeatWrapping
     }
