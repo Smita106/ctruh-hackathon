@@ -22,7 +22,7 @@ const properties = [
         imagename: 'pr2.jpg',
         objModelName: 'beach-house8.glb',
         description: 'Slim style with a clean construction and essential details. This versatile jean features a comfortable silhouette, finished with a zip fly. The fabric is made using 22% certified recycled cotton, reducing the use of virgin resources. Crafted from denim with partially recycled fibres and a hint of stretch. It features a medium blue wash with a classic, subtly lived-in look.',
-        details: 'Material:99%Cotton 1%Elastane-Spandex, Color:Blue,Occasion:Casual Wear,Fit: Slim,Waist: Mid Rise,Closure: Zip Fly',
+        details: 'Runwal, The Residence Malabar Hill, is a splendid residential development offering an impressive collection of sky homes with lifestyle luxuries in one of the most sought-after locations. Ideally positioned in Malabar Hill, Mumbai, The Residence Runwal is a development by Runwal Developers, one of the well-established developers known for offering Malabar Hill Mumbai flats for sale. The Residence Mumbai launch date is August 2017, and the apartments in Malabar Hill Mumbai were ready for possession in December 2020.',
         address:'Kilachand House, Nepean Sea Road, Vasant Vihar, Malabar Hill, Mumbai, Maharashtra, India'
     },
     {

@@ -60,8 +60,9 @@ const initHomeApp = function () {
                 }
             },
             showProperty(){
-                showPropertyEvent.detail.propertyid = this.propertyData.id;
-                document.dispatchEvent(showPropertyEvent)
+                window.location.href = '/MyHome_realestate/propertyviewer.html?propertyid='+ this.propertyData.id;
+                // showPropertyEvent.detail.propertyid = this.propertyData.id;
+                // document.dispatchEvent(showPropertyEvent)
             }
         },
         template:`
