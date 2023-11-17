@@ -6,6 +6,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 let viewerApp;
+let bigCanvas = true;
 
 const initViewerApp = function (initPropID) {
     viewerApp = createApp({ props: [] }, {
@@ -147,6 +148,9 @@ const initViewerApp = function (initPropID) {
             };
         },
         created(){
+            if(screen.width<=500){
+                bigCanvas = false;
+            }
             for(const pro of properties){
                 this.thumbnails.push(pro.imagename);
             }
@@ -174,6 +178,9 @@ const initViewerApp = function (initPropID) {
             },
             goTo3DSection(){
                 window.location.href = "#planSection";
+            },
+            isBigCanvas(){
+                return bigCanvas;
             }
         },
         template: `
@@ -187,7 +194,7 @@ const initViewerApp = function (initPropID) {
                                 <defs><clipPath id="clip0"><rect width="4.8" height="12" fill="white" transform="translate(0.599609)"></rect></clipPath></defs>
                             </svg>
                         </span>
-                        <span class="sidenameItemTitle">Overview</span>
+                        <span class="sidenameItemTitle" :class="activeSection == 'overview' ? 'activeSidenameItemTitle' : ''" >Overview</span>
                     </a>
                     <a class="sidenavItem" :class="activeSection == 'plan' ? 'activeSideNavItem' : ''" href="#planSection" @click="setActiveSection('plan')">
                         <span class="sidenavIconContainer">
@@ -199,7 +206,7 @@ const initViewerApp = function (initPropID) {
                             <path d="M61.063,135.709c-3.742,0-6.778,3.04-6.778,6.788v50.898c0,3.748,3.036,6.779,6.778,6.779h169.651 c3.742,0,6.779-3.031,6.779-6.779V91.604c0-3.748-3.037-6.779-6.779-6.779h-67.86c-3.742,0-6.778,3.031-6.778,6.779v44.104H61.063 V135.709z M190.006,149.285v37.323h-74.657v-37.323H190.006z M67.86,149.285h33.931v37.323H67.86V149.285z M203.563,186.607 v-37.323h20.373v37.323H203.563z M223.937,98.393v37.316h-54.285V98.393H223.937z"></path>
                             </g> </g> </g></svg>
                         </span>
-                        <span class="sidenameItemTitle">Plan Details</span>
+                        <span class="sidenameItemTitle" :class="activeSection == 'plan' ? 'activeSidenameItemTitle' : ''" >Plan Details</span>
                     </a>
                     <a class="sidenavItem" :class="activeSection == 'amenities' ? 'activeSideNavItem' : ''" href="#amenities" @click="setActiveSection('amenities')">
                         <span class="sidenavIconContainer">
@@ -207,7 +214,7 @@ const initViewerApp = function (initPropID) {
                                 <path d="M10.8723 8.57286V5.26481C10.8723 4.63034 10.3561 4.11408 9.72153 4.11408H2.43497V2.92207C2.43497 2.74608 2.34712 2.58309 2.19989 2.48588L0.880808 1.6153C0.728831 1.51499 0.52443 1.55689 0.42419 1.7088C0.323812 1.86078 0.365711 2.06518 0.517619 2.16542L1.77581 2.99589V8.57286C1.34272 8.71142 1.02852 9.11548 1.02852 9.59109C1.02852 10.1808 1.51156 10.6606 2.10543 10.6606C2.69916 10.6606 3.18234 10.1808 3.18234 9.59109C3.18234 9.11548 2.86813 8.71142 2.43497 8.57286V8.29058H10.213V8.57286C9.77994 8.71142 9.46573 9.11548 9.46573 9.59109C9.46573 10.1808 9.94877 10.6606 10.5426 10.6606C11.1364 10.6606 11.6195 10.1808 11.6195 9.59109C11.6195 9.11548 11.3053 8.71149 10.8723 8.57286Z" fill="white"></path><path d="M6.65373 2.00068V1.54213C6.65373 1.36009 6.50609 1.21259 6.32419 1.21259C6.14208 1.21259 5.99457 1.36009 5.99457 1.54213V2.00068C5.25643 2.13621 4.67294 2.71839 4.53693 3.45508H8.11131C7.97529 2.71839 7.39181 2.13621 6.65373 2.00068Z" fill="white"></path>
                             </svg>
                         </span>
-                        <span class="sidenameItemTitle">Amenities</span>
+                        <span class="sidenameItemTitle" :class="activeSection == 'amenities' ? 'activeSidenameItemTitle' : ''">Amenities</span>
                     </a>
                     <a class="sidenavItem" :class="activeSection == 'locality' ? 'activeSideNavItem' : ''" href="#locality" @click="setActiveSection('locality')">
                         <span class="sidenavIconContainer">
@@ -217,7 +224,7 @@ const initViewerApp = function (initPropID) {
                             </path> </g>
                         </svg>
                         </span>
-                        <span class="sidenameItemTitle">Locality</span>
+                        <span class="sidenameItemTitle" :class="activeSection == 'locality' ? 'activeSidenameItemTitle' : ''">Locality</span>
                     </a>
                     <a class="sidenavItem" :class="activeSection == 'developer' ? 'activeSideNavItem' : ''" href="#developer" @click="setActiveSection('developer')">
                         <span class="sidenavIconContainer">
@@ -227,7 +234,7 @@ const initViewerApp = function (initPropID) {
                             </path></g>
                         </svg>
                         </span>
-                        <span class="sidenameItemTitle">About Developer</span>
+                        <span class="sidenameItemTitle" :class="activeSection == 'developer' ? 'activeSidenameItemTitle' : ''">About Developer</span>
                     </a>
                 </div>
                 <div id="sectionArea">
@@ -290,7 +297,7 @@ const initViewerApp = function (initPropID) {
                             <div id="planViewerContainer">
                                 <planviewer :propID=propID :propertyData=propertyData></planviewer>
                             </div>
-                            <div id="planDetailContainer">
+                            <div id="planDetailContainer" v-if="isBigCanvas()">
                                 <div class="planDetailRow">
                                     <div class="planDetailColumn">
                                         <div class="planDetailHeading">Area</div>
@@ -339,10 +346,59 @@ const initViewerApp = function (initPropID) {
                                     </ul>
                                 </div>
                             </div>
+                            <div id="planDetailContainer" v-else>
+                                <div class="planDetailRow">
+                                    <div class="planDetailColumn">
+                                        <div class="planDetailHeading">Area</div>
+                                        <div class="planDetailBody">820 - 902 (SqFt)</div>
+                                    </div>
+                                    <div class="planDetailColumn">
+                                        <div class="planDetailHeading">Possession Year</div>
+                                        <div class="planDetailBody">2025</div>
+                                    </div>
+                                </div>
+                                <div class="planDetailRow">
+                                    <div class="planDetailColumn">
+                                        <div class="planDetailHeading">BHK</div>
+                                        <div class="planDetailBody">2</div>
+                                    </div>
+                                    <div class="planDetailColumn">
+                                        <div class="planDetailHeading">Facing</div>
+                                        <div class="planDetailBody">North-West</div>
+                                    </div>
+                                </div>
+                                <div class="planDetailRow">
+                                    <div class="planDetailColumn">
+                                        <div class="planDetailHeading">Total Units</div>
+                                        <div class="planDetailBody">800</div>
+                                    </div>
+                                    <div class="planDetailColumn">
+                                        <div class="planDetailHeading">Possession Status</div>
+                                        <div class="planDetailBody">Under Construction</div>
+                                    </div>
+                                </div>
+                                <div class="planDetailRow">
+                                    <div class="planDetailColumn">
+                                        <div class="planDetailHeading">Furnishing Status</div>
+                                        <div class="planDetailBody">Unfurnished</div>
+                                    </div>
+                                </div>
+                                <div class="oviewDescription">
+                                    Nestled amidst the tranquil, lush greenery of Thane, Lodha Sterling redefines luxury living with its meticulously designed residences. This under construction project in Thane is scheduled for possession in September 2025.
+                                    <ul>
+                                        <li>This property in Thane has 800 units spread across multiple floors, and this residential complex is designed to provide residents with a serene and sophisticated living experience.</li>
+                                        <li>Lodha Sterling Thane offers a range of meticulously crafted homes in 2BHK, 3BHK, and 4BHK configurations to cater to diverse lifestyles.</li>
+                                        <li>One of the standout features of this luxury flat in Thane is the expansive carpet areas of the residences, offering ample space for comfort and personalisation.</li>
+                                        <li>&nbsp;The 2BHK apartments range from 820.00 sq. ft to 902.00 sq. ft, the 3BHK apartments range from 1041.00 sq. ft to 1266.00 sq. ft, and the 4BHK apartments boast a generous 2040.00 sq. ft of space.</li>
+                                        <li>This residential project in Thane is strategically located on Kolshet Road, Thane (West), ensuring excellent connectivity to Mumbai and other key destinations.&nbsp;</li>
+                                        <li>Lodha Sterling Pricing starts at INR 1.84 crore for 2BHK, INR 2.5 crore for 3BHK, and INR 5.54 crore for 4BHK, making it accessible to many homebuyers.</li>
+                                        <li>With a launch date in March 2019, this apartment in Thane promises a lifestyle that blends modern comforts, lush landscapes, and a thriving community.</li>
+                                        <li>&nbsp;It's a testament to luxurious living in the heart of nature, where every detail is designed to elevate your living experience. Take your chance to be a part of this iconic residential destination that embodies the perfect blend of comfort, style, and convenience.</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
-
 
 
                     <div id="contactUsContainer">

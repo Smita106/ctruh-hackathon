@@ -21,6 +21,7 @@ const params = {
     r: 0,
 };
 let homeApp;
+let bigCanvas = true;
 let scrollY = window.scrollY;
 let mouse = new THREE.Vector2()
 let target = new THREE.Vector2()
@@ -112,6 +113,9 @@ const initHomeApp = function () {
                     return false;
                 return true;
             },
+            isBigCanvas(){
+                return bigCanvas;
+            }
         },
         template:`
             <div style="display:flex;flex-direction:column">
@@ -119,11 +123,14 @@ const initHomeApp = function () {
                     <div class="slider__inner js-slider__inner"></div>
                     <div style="background:#000;opacity:0.5;height:100%;width:100%;display:flex;position:absolute"></div>
                     <div id="filterContainer">
-                        <h1 id="filterHeading">
+                        <h1 id="filterHeading" v-if="isBigCanvas()">
                             Find Your <span style="color:rgb(255,54,110);font-weight: 600;">Perfect Home</span>
                         </h1>
+                        <h1 id="filterHeading" v-else>
+                            Buy Your <span style="color:rgb(255,54,110);font-weight: 600;">Perfect Home</span>
+                        </h1>
                         <div id="filterBlock">
-                            <div style="width:80%;height:2em;margin-left:-1.5rem"><span style="color:white;height:2em;">Buy your Perfect Home</span></div>
+                            <div v-if="isBigCanvas()" style="width:80%;height:2em;margin-left:-1.5rem"><span style="color:white;height:2em;">Buy your Perfect Home</span></div>
                             <div id="filterDiv">
                                 <div class="filterCell"><div class="filterItem">Search Location</div></div>
                                 <div class="filterCell"><div class="filterItem">Builders<div class="downarrow"></div></div></div>
@@ -136,10 +143,17 @@ const initHomeApp = function () {
                 </div>
                 <div id="catalogBody">
                     <div id="catalogHeader">Premium Projects</div>
-                    <table id="collectionTable">
+                    <table id="collectionTable" v-if="isBigCanvas()">
                         <tr v-for="row in Number(getRowNum())">
                             <td class="propertyGrid" v-for="col in Number(colSize)">
                                 <property v-if="isCellAvailable(row,col)" :propertyData="rootCmp._props.properties[getIndex(row,col)-1]"></property>
+                            </td>
+                        </tr>
+                    </table>
+                    <table id="collectionTable" v-else>
+                        <tr v-for="prop in rootCmp._props.properties">
+                            <td class="propertyGrid">
+                                <property :propertyData="prop"></property>
                             </td>
                         </tr>
                     </table>
@@ -423,6 +437,9 @@ const initHomeApp = function () {
             };
         },
         created(){
+            if(screen.width<=500){
+                bigCanvas = false;
+            }
             homeApp._props.properties = properties;
             document.addEventListener('showpropertyevent',(e)=>{
                 if(e.detail.propertyid!=null){
