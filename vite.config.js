@@ -7,6 +7,11 @@ export default defineConfig({
   base: 'MyHome_realestate',
   build: {
     outDir: './docs',
-    
+    rollupOptions: {
+      input: {
+        main: './index.html',
+        viewer: './propertyviewer.html',
+      }
+    }
   }
 })
