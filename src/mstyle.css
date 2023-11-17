@@ -468,13 +468,13 @@ z-index: 10;
 
 #sidenav{
   position: fixed;
-  top: calc(100vh - 4.5rem);
+  top: calc(100vh - 4rem);
   margin-left: 0.5rem;
   margin-right: 0.5rem;
   overflow-x: hidden;
   z-index: 100;
   width: calc(100% - 1rem);
-  height: 4rem;
+  height: 3.2rem;
   display: flex;
   flex-direction: row;
   background-color: rgb(230 230 230);
@@ -488,8 +488,8 @@ z-index: 10;
   align-items: center;
   font-size: 1.1rem;
   letter-spacing: -.025em;
-  line-height: 4rem;
-  height: 4rem;
+  line-height: 3.2rem;
+  height: 3.2rem;
   text-decoration: none;
   padding: 0rem 0.5rem;
   color: #484848;
@@ -506,13 +506,14 @@ z-index: 10;
 }
 
 .sidenameItemTitle{
-  text-wrap: nowrap;
+  white-space:nowrap;
   font-size: 0.85rem;
   width: 0rem;
   overflow: hidden;
-  transition: 0.3s;
+  transition: 0.5s ease;
 }
 .activeSidenameItemTitle{
+  white-space:nowrap;
   width: 7rem;
   font-size: 0.85rem;
   overflow: hidden;
@@ -731,28 +732,26 @@ z-index: 10;
 }
 #planViewerContainer{
   position: relative;
-  background-color: #f0f0f7;
   width: 100%;
-  border-radius: 0.25rem;
-  box-shadow: 0 0 4px rgb(189, 189, 189);
 }
 #planViewerCanvas{
   width: 100%;
   height: 70vh;
   background-color: rgba(229, 189, 255,0.2);
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 4px rgb(189, 189, 189);
 }
 #planViewerControlsDiv{
   position: absolute;
-  right: 2rem;
-  bottom: 2.5rem;
+  right: 1rem;
+  bottom: 1rem;
   z-index: 100;
-  height: 4rem;
+  height: 3rem;
 }
 #arLink{
   display: block;
-  height: 4rem;
-  width: 4rem;
+  height: 3rem;
+  width: 3rem;
   cursor: pointer;
 }
 #planDetailContainer{
@@ -821,16 +820,15 @@ width: 100%;
   font-family: sans-serif;
 }
 #inputContainer{
-  padding-top: 1.25rem;
   padding: 1.5rem;
-  padding: 1.5rem;
+  padding-top: 0rem;
   display: flex;
   align-items: center;
   flex-direction: column;
   width: calc(100% - 3rem);
 }
 .inputtip{
-  font-size: .85rem;
+  font-size: .75rem;
   line-height: 1rem;
   font-weight: 400;
   text-align: left;
@@ -840,14 +838,14 @@ width: 100%;
   margin-bottom: 0.75rem
 }
 .labelC{
-  font-size: 1.25rem;
-  line-height: 2.25rem;
+  font-size: 1.1rem;
+  line-height: 2.0rem;
   color: rgb(0 0 0);
   padding-bottom: 0.25rem;
   display: block;
 }
 .labelInput{
-  height: 2.75rem;
+  height: 2.5rem;
   font-size: 1rem;
   line-height: 1.5rem;
   padding-left: 0.75rem;

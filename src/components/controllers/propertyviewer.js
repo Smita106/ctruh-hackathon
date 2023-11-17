@@ -7,6 +7,7 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 let viewerApp;
 let bigCanvas = true;
+let rootMarginValue = Math.floor(screen.height*0.20);
 
 const initViewerApp = function (initPropID) {
     viewerApp = createApp({ props: [] }, {
@@ -84,7 +85,13 @@ const initViewerApp = function (initPropID) {
                 dracoLoader.setDecoderPath('./libs/draco/');
                 loader.setDRACOLoader(dracoLoader)
                 loader.load( './assets/model/simple3Dplan.glb', this.gltFLoaded);
-                this.startRendering();
+                //Enable rendering only when canvas is visible in viewport
+                let observer = new IntersectionObserver(this.manageRendererByVisibility,{
+                    root: null,
+                    rootMargin: rootMarginValue+'px 0px',
+                    threshold: 0.1,
+                });
+                observer.observe(document.getElementById('planViewerCanvas'));
             },
             gltFLoaded(gltf){
                 this.model = gltf;
@@ -123,13 +130,26 @@ const initViewerApp = function (initPropID) {
             animate(){
 				this.renderer.render( this.scene, this.camera );
             },
-            openingAR(){
+            suspendRendering(){
                 this.renderer.setAnimationLoop(null);
+            },
+            manageRendererByVisibility(entries, observer){
+                entries.forEach(entry => {
+                    if (
+                        entry &&
+                        entry.isIntersecting &&
+                        entry.intersectionRatio >= 0.1
+                      ){
+                    this.startRendering();
+                      }else{
+                        this.suspendRendering();
+                      }
+                  });
             },
         },
         template: `
             <div id="planViewerControlsDiv">
-                <a id="arLink" rel="ar" href="./assets/model/simple3Dplan.usdz" @click="openingAR()">
+                <a id="arLink" rel="ar" href="./assets/model/simple3Dplan.usdz">
                     <img style="height:100%; width:100%" src="./assets/images/ios-arkit.svg">
                 </a>
             </div>
@@ -405,8 +425,8 @@ const initViewerApp = function (initPropID) {
                         <div id="contactUsDiv">
                             <div id="contactUsC">
                                 <div style="padding-bottom: 0.75rem;padding: 1.5rem;width: calc(100% - 3rem);">
-                                    <h5 style="font-size: 1rem; line-height: 1.75rem;font-weight: 400;margin-top: 0.5rem;margin-bottom: 0.5rem;">BUY AT THE RIGHT PRICE!</h5>
-                                    <h5 style="color:#ce3d37; font-size: 1.75rem; line-height: 2rem;font-weight: 600;margin-top: 1.25rem;margin-bottom: 0rem;">Are you ready to buy your perfect property</h5>
+                                    <h5 style="font-size: 0.85rem; line-height: 1.75rem;font-weight: 400;margin-top: 0.5rem;margin-bottom: 0.5rem;">BUY AT THE RIGHT PRICE!</h5>
+                                    <h5 style="color:#ce3d37; font-size: 1.5rem; line-height: 1.5rem;font-weight: 600;margin-top: 1.1rem;margin-bottom: 0rem;">Are you ready to buy your perfect property</h5>
                                 </div>
                                 <div id="inputContainer">
                                     <div class="labelDiv">
@@ -427,7 +447,7 @@ const initViewerApp = function (initPropID) {
                                         <input type="email" class="labelInput" placeholder="Enter Your Email ID" name="email" value="">
                                         <span class="inputtip">This Field Is Required</span>
                                     </div>
-                                    <p style="font-weight: 400;ont-size: .875rem;line-height: 1.25rem;margin-top: 0.75rem;margin-bottom: 1.25rem;">By clicking below you agree to
+                                    <p style="font-weight: 400;font-size: 0.75rem;line-height: 1.1rem;margin-top: 0.5rem;margin-bottom: 1.0rem;">By clicking below you agree to
                                         <a target="_blank" style="text-decoration: none;color: rgb(0 0 0)" href="/terms">Terms and Conditions</a>&amp;
                                         <a target="_blank" style="text-decoration: none;color: rgb(0 0 0)" href="/privacyPolicy">Privacy Policy</a></p>
                                     <button id="contactButton">
