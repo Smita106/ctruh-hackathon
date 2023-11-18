@@ -9,6 +9,7 @@ let viewerApp;
 let bigCanvas = true;
 let rootMarginValue = Math.floor(screen.height*0.20);
 let isIOS = false;
+let prevScrollpos = window.screenY;
 const propertyParticulars = [
     {
         no: 1,
@@ -82,7 +83,7 @@ const initViewerApp = function (initPropID) {
         mounted(){
         },
         template: `
-        <div class="headerPanel" :style="{'opacity': showPropertyMode ? '0.5':'1'}">
+        <div id="headerPanelID" class="headerPanel" :style="{'opacity': showPropertyMode ? '0.5':'1'}">
             <figure class="logo">
                 <img src="./assets/images/logo.jpg">
             </figure>
@@ -334,7 +335,7 @@ const initViewerApp = function (initPropID) {
                 <a v-if="isIOSDevice() && !isBigCanvas()" class="planViewerControls" id="arLink" rel="ar" href="./assets/model/simple3Dplan.usdz">
                     <img style="height:100%; width:100%" src="./assets/images/ios-arkit.svg">
                 </a>
-                <button v-if="!isBigCanvas()" class="planViewerControls" @click="openARView()">
+                <button v-if="!isIOSDevice() && !isBigCanvas()" class="planViewerControls" @click="openARView()">
                     <img style="height:100%; width:100%" src="./assets/images/ios-arkit.svg">
                 </button>
             </div>
@@ -379,6 +380,17 @@ const initViewerApp = function (initPropID) {
             }
         },
         mounted(){
+            if(!bigCanvas){
+                window.onscroll = function(e) { 
+                    const currentScrollPos = window.scrollY;
+                    if (prevScrollpos > currentScrollPos) {
+                        document.getElementById("headerPanelID").style.top = "0";
+                    } else {
+                        document.getElementById("headerPanelID").style.top = "-5rem";
+                    }
+                    prevScrollpos = currentScrollPos;
+                    }
+           }
         },
         methods:{
             setActiveSection(section){

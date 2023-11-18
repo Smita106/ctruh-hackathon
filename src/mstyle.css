@@ -45,6 +45,7 @@ body{
   left: 0;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
   z-index: 20;
+  transition: top 0.3s;
 }
 
 #finderContainerBlock{
@@ -174,7 +175,7 @@ letter-spacing: 0.05em;
   width: calc(100% - 20px);
 }
 .propertyContanier{
-  height: 40vh;
+  height: 45vh;
   width: 93%;
   justify-content: space-between;
   align-items: center;
@@ -221,7 +222,8 @@ letter-spacing: 0.05em;
 
 .propertyInfoContainer{
   padding-top: 0.5em;
-  height: calc(45% - 15px);
+  padding-bottom: 0.5em;
+  /* height: calc(45% - 15px); */
   font-family: Arial, Helvetica, sans-serif;
 }
 .p-price{
@@ -744,7 +746,7 @@ z-index: 10;
 #planViewerControlsDiv{
   position: absolute;
   right: 1rem;
-  bottom: 1rem;
+  top: calc(70vh - 3.5rem); 
   z-index: 100;
   height: 3rem;
   display: flex;
@@ -773,6 +775,67 @@ z-index: 10;
   height: 100%;
   z-index: 1000;
   background-image: radial-gradient(#252525, #161616);
+}
+#planParticularsContainer{
+  width: calc(100% - 0.6rem);
+  padding: 0.3rem;
+  background-color: #fffffc;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.278);
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 0.4rem;
+  row-gap: 0.8rem;
+  height: 15vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.planParticularsDiv{
+  display: flex;
+  height: 2.5rem;
+  flex-direction: row;
+  width: 100%;
+  border: 1px solid rgb(64, 164, 103);
+  border-radius: 0.25rem;
+  overflow: hidden;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+.planParticularsDiv:hover{
+  border: 1px solid rgb(116, 184, 0);
+  box-shadow: 0 1px 8px rgba(35, 35, 35, 0.282);
+}
+.planParticularSlNo{
+  height: 2.5rem;
+  width: 2.5rem;
+  background-color: rgb(64, 164, 103);
+  color: rgb(255, 247, 231);
+  font-family: Roboto;
+  line-height: 2.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+}
+.planParticular{
+  height: 2.5rem;
+  width: calc(100% - 5rem);
+  font-size: 0.875rem;
+  font-family: sans-serif;
+  font-weight: 600;
+  color: rgb(64, 164, 103);
+  text-transform: capitalize;
+  line-height: 2.5rem;
+  padding-left: 0.2rem;
+}
+.planParticularArea{
+  height: 2.5rem;
+  width: 2.5rem;
+  font-size: 0.875rem;
+  font-family: sans-serif;
+  color: green;
+  line-height: 2.5rem;
+  padding-right: 0.1rem;
 }
 #planDetailContainer{
   margin-top: 2rem;
