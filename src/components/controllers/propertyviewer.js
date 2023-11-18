@@ -8,7 +8,65 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 let viewerApp;
 let bigCanvas = true;
 let rootMarginValue = Math.floor(screen.height*0.20);
-
+let isIOS = false;
+const propertyParticulars = [
+    {
+        no: 1,
+        name: 'corridor',
+        area: 18,
+        pos: new THREE.Vector3(7.7,3.5,8.8),
+        lookAt: new THREE.Vector3(5,10,0),
+    },
+    {
+        no: 2,
+        name: 'living room',
+        area: 26,
+        pos: new THREE.Vector3(3.4,3.5,-3.0),
+        lookAt: new THREE.Vector3(-1.2,4,0),
+    },
+    {
+        no: 3,
+        name: 'kitchen',
+        area: 15,
+        pos: new THREE.Vector3(1.7,3.5,2.4),
+        lookAt: new THREE.Vector3(0,0,0),
+    },
+    {
+        no: 4,
+        name: 'wc',
+        area: 11,
+        pos: new THREE.Vector3(-2.8,3.5,13),
+        lookAt: new THREE.Vector3(0,0,0),
+    },
+    {
+        no: 5,
+        name: 'bedroom',
+        area: 24,
+        pos: new THREE.Vector3(-9.8,3.5,9.7),
+        lookAt: new THREE.Vector3(0,0,0),
+    },
+    {
+        no: 6,
+        name: 'Dinning',
+        area: 12,
+        pos: new THREE.Vector3(-6.7,3.5,1.9),
+        lookAt: new THREE.Vector3(0,0,0),
+    },
+    {
+        no: 7,
+        name: 'WC',
+        area: 14,
+        pos: new THREE.Vector3(13.2,3.5,7.1),
+        lookAt: new THREE.Vector3(0,0,0),
+    },
+    {
+        no: 8,
+        name: 'bedroom',
+        area: 28,
+        pos: new THREE.Vector3(14,3.5,-4),
+        lookAt: new THREE.Vector3(0,0,0),
+    }
+];
 const initViewerApp = function (initPropID) {
     viewerApp = createApp({ props: [] }, {
         properties:[],
@@ -65,6 +123,12 @@ const initViewerApp = function (initPropID) {
             this.initViewerEngine();
         },
         methods:{
+            getParticulars(){
+                return propertyParticulars;
+            },
+            isIOSDevice(){
+                return isIOS;
+            },
             initViewerEngine(){
                 this.canvasWidth = this.canvas.getBoundingClientRect().width;
                 this.canvasHeight = this.canvas.getBoundingClientRect().height;
@@ -76,6 +140,9 @@ const initViewerApp = function (initPropID) {
                 this.camera = new THREE.PerspectiveCamera(10, this.canvasWidth/this.canvasHeight,1,3000);
                 this.camera.position.set(0,180,0);
                 this.controls = new OrbitControls(this.camera,  this.renderer.domElement);
+                this.controls.zoomSpeed = bigCanvas ? 5 : 1 ;
+                this.controls.rotateSpeed=0.5;
+                this.controls.coupleCenters = false;
                 this.scene.add( new THREE.HemisphereLight( 0xaaaaaa, 0x444444, 2 ) );
                 const light = new THREE.DirectionalLight( 0xffffff, 1 );
                 light.position.set( -10, 100, 0 );
@@ -146,14 +213,139 @@ const initViewerApp = function (initPropID) {
                       }
                   });
             },
+            resetPlanView(){
+                this.camera.fov = 10;
+                this.camera.position.set(0,180,0);
+                this.camera.updateProjectionMatrix();
+                this.controls.zoomSpeed = bigCanvas ? 5 : 1 ;
+                this.controls.reset();
+            },
+            isBigCanvas(){
+                return bigCanvas;
+            },
+            updateLookAt(){
+                this.factor += 0.005;
+                this.camera.fov = Math.min(10+ this.factor*50*3,60);
+                this.camera.updateProjectionMatrix(); 
+                this.controls.update();
+            },
+            updateFov(){
+                delete this.camera._gsTweenID;
+                this.camera.fov = 30;
+                this.camera.zoom = 0.5;
+                this.camera.lookAt(this.particular.lookAt);
+                this.camera.updateProjectionMatrix();
+                this.controls.zoomSpeed = 1 ;
+                this.controls.enabled = true;
+                this.controls.target.x = this.camera.position.x-1;
+                this.controls.target.y = this.camera.position.y;
+                this.controls.target.z = this.camera.position.z-1;
+                this.controls.update("sdf");
+            },
+            moveToView(particular){
+                this.particular = particular;
+                this.factor = 0;
+                this.controls.enabled = false;
+                this.controls.zoomSpeed = 1;
+                TweenMax.to(this.camera.position,1.5, {
+                    x: particular.pos.x,
+                    y: particular.pos.y,
+                    z: particular.pos.z,
+                    onUpdate: this.updateLookAt,
+                    onComplete: this.updateFov,
+                    ease: Sine.easeOut,
+                  },
+                );
+            },
+            async openARView(){
+                this.suspendRendering();
+                document.body.style.overflow = 'hidden';
+                const arCanvas = document.createElement('canvas');
+                arCanvas.setAttribute("id", "adroidARViewer");
+                document.body.appendChild(arCanvas);
+                const gl = arCanvas.getContext("webgl", {xrCompatible: true});
+                const arScene = new THREE.Scene();
+
+                // The cube will have a different color on each side.
+                const materials = [
+                new THREE.MeshBasicMaterial({color: 0xff0000}),
+                new THREE.MeshBasicMaterial({color: 0x0000ff}),
+                new THREE.MeshBasicMaterial({color: 0x00ff00}),
+                new THREE.MeshBasicMaterial({color: 0xff00ff}),
+                new THREE.MeshBasicMaterial({color: 0x00ffff}),
+                new THREE.MeshBasicMaterial({color: 0xffff00})
+                ];
+                // arScene.add( new THREE.HemisphereLight( 0xaaaaaa, 0x444444, 2 ) );
+                const cube = new THREE.Mesh(new THREE.BoxGeometry(10, 10), materials);
+                cube.position.set(0, 0, 0);
+                arScene.add(cube);
+                const arRenderer = new THREE.WebGLRenderer({
+                    alpha: true,
+                    preserveDrawingBuffer: true,
+                    canvas: arCanvas,
+                    context: gl
+                  });
+                arRenderer.autoClear = false;
+                // arRenderer.setSize(window.innerWidth, window.innerHeight);
+                const arCamera = new THREE.PerspectiveCamera();
+                arCamera.matrixAutoUpdate = false;
+
+                const session = await navigator.xr.requestSession("immersive-ar");
+                session.updateRenderState({
+                    baseLayer: new XRWebGLLayer(session, gl)
+                });
+
+                const referenceSpace = await session.requestReferenceSpace('local');
+
+                //Render loop to draw on the AR view.
+                const onXRFrame = (time, frame) => {
+                    // Queue up the next draw request.
+                    session.requestAnimationFrame(onXRFrame);
+                    // Bind the graphics framebuffer to the baseLayer's framebuffer
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, session.renderState.baseLayer.framebuffer)
+                
+                    // Retrieve the pose of the device.
+                    // XRFrame.getViewerPose can return null while the session attempts to establish tracking.
+                    const pose = frame.getViewerPose(referenceSpace);
+                    if (pose) {
+                    // In mobile AR, we only have one view.
+                    const view = pose.views[0];
+                
+                    const viewport = session.renderState.baseLayer.getViewport(view);
+                    arRenderer.setSize(viewport.width, viewport.height)
+                
+                    // Use the view's transform matrix and projection matrix to configure the THREE.camera.
+                    arCamera.matrix.fromArray(view.transform.matrix)
+                    arCamera.projectionMatrix.fromArray(view.projectionMatrix);
+                    arCamera.updateMatrixWorld(true);
+                
+                    // Render the scene with THREE.WebGLRenderer.
+                    arRenderer.render(arScene, arCamera)
+                    }
+                }
+                session.requestAnimationFrame(onXRFrame);
+            },
         },
         template: `
             <div id="planViewerControlsDiv">
-                <a id="arLink" rel="ar" href="./assets/model/simple3Dplan.usdz">
+                <button class="planViewerControls" style="padding:0.5rem" @click="resetPlanView()">
+                    <img style="height:100%; width:100%" src="./assets/images/reset.svg">
+                </button>
+                <a v-if="isIOSDevice() && !isBigCanvas()" class="planViewerControls" id="arLink" rel="ar" href="./assets/model/simple3Dplan.usdz">
                     <img style="height:100%; width:100%" src="./assets/images/ios-arkit.svg">
                 </a>
+                <button v-if="!isBigCanvas()" class="planViewerControls" @click="openARView()">
+                    <img style="height:100%; width:100%" src="./assets/images/ios-arkit.svg">
+                </button>
             </div>
             <canvas id="planViewerCanvas"></canvas>
+            <div id="planParticularsContainer">
+                <div class="planParticularsDiv" v-for="particular in getParticulars()" @click="moveToView(particular)">
+                    <div class="planParticularSlNo">{{particular.no}}</div>
+                    <div class="planParticular">{{particular.name}}</div>
+                    <div class="planParticularArea"><span style="font-weight:600">{{particular.area}}</span>m²</div>
+                </div>
+            </div>
         `,     
     });
     viewerApp.component('propertyviewerpage',{
@@ -171,6 +363,8 @@ const initViewerApp = function (initPropID) {
             if(screen.width<=500){
                 bigCanvas = false;
             }
+            isIOS = /iPad|iPhone|iPod/.test( navigator.userAgent );
+
             for(const pro of properties){
                 this.thumbnails.push(pro.imagename);
             }
@@ -403,7 +597,7 @@ const initViewerApp = function (initPropID) {
                                         <div class="planDetailBody">Unfurnished</div>
                                     </div>
                                 </div>
-                                <div class="oviewDescription">
+                                <div class="oviewDescription" style="margin-top:1rem">
                                     Nestled amidst the tranquil, lush greenery of Thane, Lodha Sterling redefines luxury living with its meticulously designed residences. This under construction project in Thane is scheduled for possession in September 2025.
                                     <ul>
                                         <li>This property in Thane has 800 units spread across multiple floors, and this residential complex is designed to provide residents with a serene and sophisticated living experience.</li>
