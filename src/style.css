@@ -716,12 +716,52 @@ z-index: 10;
   box-shadow: 0 0 4px rgb(189, 189, 189);
 }
 #planViewerCanvas{
+  position: relative;
   width: 100%;
   height: 60vh;
   background-color: rgba(229, 189, 255,0.2);
   border-radius: 0.75rem;
+  /* z-index: 10; */
 }
-
+#planViewerAnnotationCanvas {
+  position: absolute;
+  z-index: -1;
+  width: 100%;
+  height: 60vh;
+  display: block;
+  overflow: hidden;
+}
+#annotationContainer{
+  position: absolute;
+  top: 0;
+  z-index: 0;
+  width: 100%;
+  height: 60vh;
+  display: block;
+  overflow: hidden;
+}
+.annotationDiv {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  text-align: center;
+  color: #fff;
+  width: 1.4rem;
+  height: 1.4rem;
+  background: rgba(8, 164, 50, 0.8);
+  font-size: 15px;
+  line-height: 1.4rem;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+.annotationDiv:hover{
+  opacity: 1;
+  width: 1.6rem;
+  height: 1.6rem;
+  line-height: 1.6rem;
+}
 #planViewerControlsDiv{
   position: absolute;
   right: 2rem;

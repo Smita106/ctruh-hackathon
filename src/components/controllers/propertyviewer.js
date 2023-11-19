@@ -10,6 +10,8 @@ let bigCanvas = true;
 let rootMarginValue = Math.floor(screen.height*0.20);
 let isIOS = false;
 let prevScrollpos = window.screenY;
+let sprite;
+
 const propertyParticulars = [
     {
         no: 1,
@@ -115,12 +117,17 @@ const initViewerApp = function (initPropID) {
         props:['propID', 'propertyData'],
         data(){
             return{
+                immersiveMode : false,
             };
         },
         created(){
         },
         mounted(){
             this.canvas = document.getElementById('planViewerCanvas');
+            for(const particular of propertyParticulars){
+                particular.annotation = document.getElementById('annotation'+particular.no);
+                console.log(particular);
+            }
             this.initViewerEngine();
         },
         methods:{
@@ -162,7 +169,7 @@ const initViewerApp = function (initPropID) {
                 observer.observe(document.getElementById('planViewerCanvas'));
             },
             gltFLoaded(gltf){
-                this.model = gltf;
+                this.model = gltf.scene;
                 gltf.scene.scale.set(1,1,1);
                 gltf.scene.position.set(0,0,0);
                 const p1 = new THREE.PointLight( 0xffffff, 15, 100 );
@@ -190,6 +197,7 @@ const initViewerApp = function (initPropID) {
                 // const pointLightHelper = new THREE.PointLightHelper( p1, sphereSize );
                 // this.scene.add( pointLightHelper );
                 this.scene.add(gltf.scene);
+                this.initAnnotations();
                 // this.inititateUSDZ();
             },
             startRendering(){
@@ -197,6 +205,8 @@ const initViewerApp = function (initPropID) {
             },
             animate(){
 				this.renderer.render( this.scene, this.camera );
+                this.updateAnnotationOpacity();
+                this.updateScreenPosition();
             },
             suspendRendering(){
                 this.renderer.setAnimationLoop(null);
@@ -215,6 +225,7 @@ const initViewerApp = function (initPropID) {
                   });
             },
             resetPlanView(){
+                this.immersiveMode = false;
                 this.camera.fov = 10;
                 this.camera.position.set(0,180,0);
                 this.camera.updateProjectionMatrix();
@@ -244,6 +255,7 @@ const initViewerApp = function (initPropID) {
                 this.controls.update();
             },
             moveToView(particular){
+                this.immersiveMode = true;
                 this.particular = particular;
                 this.factor = 0;
                 this.controls.enabled = false;
@@ -326,6 +338,78 @@ const initViewerApp = function (initPropID) {
                 }
                 session.requestAnimationFrame(onXRFrame);
             },
+            initAnnotations(){
+                const canvas = document.getElementById("planViewerAnnotationCanvas");
+                const ctx = canvas.getContext("2d");
+                const x = 32;
+                const y = 32;
+                const radius = 30;
+                const startAngle = 0;
+                const endAngle = Math.PI * 2;
+                
+                ctx.fillStyle = "rgb(0, 0, 0)";
+                ctx.beginPath();
+                ctx.arc(x, y, radius, startAngle, endAngle);
+                ctx.fill();
+                
+                ctx.strokeStyle = "rgb(255, 255, 255)";
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(x, y, radius, startAngle, endAngle);
+                ctx.stroke();
+                
+                ctx.fillStyle = "rgb(255, 255, 255)";
+                ctx.font = "32px sans-serif";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("1", x, y);
+                const numberTexture = new THREE.CanvasTexture(
+                    document.querySelector("#planViewerAnnotationCanvas")
+                );
+            
+                const spriteMaterial = new THREE.SpriteMaterial({
+                    map: numberTexture,
+                    alphaTest: 0.5,
+                    transparent: true,
+                    depthTest: false,
+                    depthWrite: false
+                });
+            
+                sprite = new THREE.Sprite(spriteMaterial);
+                sprite.position.set(250, 250, 250);
+                sprite.scale.set(60, 60, 1);
+            
+                this.scene.add(sprite);
+            },
+            updateAnnotationOpacity() {
+                if(this.model==null){
+                    return;
+                }
+                const meshDistance = this.camera.position.distanceTo(this.model.position);
+                const spriteDistance = this.camera.position.distanceTo(sprite.position);
+                // sprite.material.opacity = spriteBehindObject ? 0.25 : 1;
+            
+                // Do you want a number that changes size according to its position?
+                // Comment out the following line and the `::before` pseudo-element.
+                // sprite.material.opacity = 0;
+            },
+            updateScreenPosition() {
+                for(const particular of propertyParticulars){
+                    const vector = new THREE.Vector3(0,0,0);
+                    vector.copy(particular.pos);
+                    const canvas = this.renderer.domElement;
+                    vector.project(this.camera);
+                    vector.x = Math.round((0.5 + vector.x / 2) * (canvas.width / window.devicePixelRatio));
+                    vector.y = Math.round((0.5 - vector.y / 2) * (canvas.height / window.devicePixelRatio));
+                    if(vector.y < 0 || vector.x < 0 || vector.y > canvas.height || vector.x > canvas.width || this.immersiveMode){
+                        particular.annotation.style.display = 'none';
+                    }else{
+                        particular.annotation.style.display = 'block';
+                        particular.annotation.style.top = `${vector.y}px`;
+                        particular.annotation.style.left = `${vector.x}px`;
+                    }
+                }
+            }
         },
         template: `
             <div id="planViewerControlsDiv">
@@ -340,6 +424,8 @@ const initViewerApp = function (initPropID) {
                 </button>
             </div>
             <canvas id="planViewerCanvas"></canvas>
+            <div class="annotationDiv" :id="'annotation'+particular.no" v-for="particular in getParticulars()" @click="moveToView(particular)">{{particular.no}}</div>
+            <canvas id="planViewerAnnotationCanvas"></canvas>
             <div id="planParticularsContainer">
                 <div class="planParticularsDiv" v-for="particular in getParticulars()" @click="moveToView(particular)">
                     <div class="planParticularSlNo">{{particular.no}}</div>
