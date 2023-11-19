@@ -141,8 +141,8 @@ const initViewerApp = function (initPropID) {
                 this.camera = new THREE.PerspectiveCamera(10, this.canvasWidth/this.canvasHeight,1,3000);
                 this.camera.position.set(0,180,0);
                 this.controls = new OrbitControls(this.camera,  this.renderer.domElement);
-                this.controls.zoomSpeed = bigCanvas ? 5 : 1 ;
-                this.controls.rotateSpeed=0.5;
+                this.controls.zoomSpeed = bigCanvas ? 3 : 1 ;
+                this.controls.rotateSpeed=0.2;
                 this.controls.coupleCenters = false;
                 this.scene.add( new THREE.HemisphereLight( 0xaaaaaa, 0x444444, 2 ) );
                 const light = new THREE.DirectionalLight( 0xffffff, 1 );
@@ -218,7 +218,7 @@ const initViewerApp = function (initPropID) {
                 this.camera.fov = 10;
                 this.camera.position.set(0,180,0);
                 this.camera.updateProjectionMatrix();
-                this.controls.zoomSpeed = bigCanvas ? 5 : 1 ;
+                this.controls.zoomSpeed = bigCanvas ? 3 : 1 ;
                 this.controls.reset();
             },
             isBigCanvas(){
@@ -241,7 +241,7 @@ const initViewerApp = function (initPropID) {
                 this.controls.target.x = this.camera.position.x-1;
                 this.controls.target.y = this.camera.position.y;
                 this.controls.target.z = this.camera.position.z-1;
-                this.controls.update("sdf");
+                this.controls.update();
             },
             moveToView(particular){
                 this.particular = particular;
