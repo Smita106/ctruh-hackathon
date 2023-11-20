@@ -543,8 +543,8 @@ z-index: 10;
   padding: 0.25rem;
 }
 #sectionArea{
-  width: calc(100% - 4rem);
-  padding: 1rem 2rem;
+  width: calc(100% - 2rem);
+  padding: 1rem 1rem;
   margin-top: 6rem;
   display: flex;
   flex-direction: column;
@@ -646,17 +646,18 @@ z-index: 10;
 }
 .flatOptionsDiv{
   width: calc(100% - 2rem);
+  background-color: #fafafc;
   padding: 1rem;
   border: 1px solid rgb(233, 233, 233);
   height: calc(9vh - 2rem);
   border-radius: 0.5rem;
-  box-shadow: 0 0 2px rgb(190, 190, 190);
+  box-shadow: 0 0 4px rgba(190, 190, 190, 0.7);
   cursor: pointer;
   transition: 0.3s;
   margin-bottom: 1.5rem;
 }
 .flatOptionsDiv:hover{
-  box-shadow: 0 2px 6px rgb(190, 190, 190);
+  box-shadow: 0 2px 8px rgb(190, 190, 190);
 }
 .flatOptions{
   display: block;
@@ -816,11 +817,11 @@ z-index: 10;
 }
 #planParticularsContainer{
   width: calc(100% - 0.6rem);
-  padding: 0.3rem;
-  background-color: #fffffc;
+  padding: 0.5rem 0.3rem;
+  background-color: #dbdbdf;
   border-radius: 0.5rem;
   margin-top: 1rem;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.278);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.278) inset;
   display: grid;
   grid-template-columns: auto auto;
   column-gap: 0.4rem;
@@ -834,15 +835,16 @@ z-index: 10;
   height: 2.5rem;
   flex-direction: row;
   width: 100%;
+  background-color: #fffffa;
   border: 1px solid rgb(64, 164, 103);
   border-radius: 0.25rem;
   overflow: hidden;
   cursor: pointer;
-  transition: 0.3s ease;
+  transition: 0.5s ease;
 }
 .planParticularsDiv:hover{
   border: 1px solid rgb(116, 184, 0);
-  box-shadow: 0 1px 8px rgba(35, 35, 35, 0.282);
+  box-shadow: 0 2px 14px rgba(35, 35, 35, 0.282);
 }
 .planParticularSlNo{
   height: 2.5rem;
