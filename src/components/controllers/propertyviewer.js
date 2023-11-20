@@ -424,7 +424,7 @@ const initViewerApp = function (initPropID) {
                 </button>
             </div>
             <canvas id="planViewerCanvas"></canvas>
-            <div class="annotationDiv" :id="'annotation'+particular.no" v-for="particular in getParticulars()" @click="moveToView(particular)">{{particular.no}}</div>
+            <div class="annotationDiv" :id="'annotation'+particular.no" v-for="particular in getParticulars()" @click="moveToView(particular)" :title="particular.name">{{particular.no}}</div>
             <canvas id="planViewerAnnotationCanvas"></canvas>
             <div id="planParticularsContainer">
                 <div class="planParticularsDiv" v-for="particular in getParticulars()" @click="moveToView(particular)">
