@@ -195,16 +195,13 @@ const initViewerApp = function (initPropID) {
                 // const pointLightHelper = new THREE.PointLightHelper( p1, sphereSize );
                 // this.scene.add( pointLightHelper );
                 this.scene.add(gltf.scene);
-                this.initAnnotations();
-                // this.inititateUSDZ();
             },
             startRendering(){
                 this.renderer.setAnimationLoop(this.animate);
             },
             animate(){
 				this.renderer.render( this.scene, this.camera );
-                this.updateAnnotationOpacity();
-                this.updateScreenPosition();
+                this.updateAnnotationScreenPosition();
             },
             suspendRendering(){
                 this.renderer.setAnimationLoop(null);
@@ -336,55 +333,7 @@ const initViewerApp = function (initPropID) {
                 }
                 session.requestAnimationFrame(onXRFrame);
             },
-            initAnnotations(){
-                const canvas = document.getElementById("planViewerAnnotationCanvas");
-                const ctx = canvas.getContext("2d");
-                const x = 32;
-                const y = 32;
-                const radius = 30;
-                const startAngle = 0;
-                const endAngle = Math.PI * 2;
-                
-                ctx.fillStyle = "rgb(0, 0, 0)";
-                ctx.beginPath();
-                ctx.arc(x, y, radius, startAngle, endAngle);
-                ctx.fill();
-                
-                ctx.strokeStyle = "rgb(255, 255, 255)";
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.arc(x, y, radius, startAngle, endAngle);
-                ctx.stroke();
-                
-                ctx.fillStyle = "rgb(255, 255, 255)";
-                ctx.font = "32px sans-serif";
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-                ctx.fillText("1", x, y);
-                const numberTexture = new THREE.CanvasTexture(
-                    document.querySelector("#planViewerAnnotationCanvas")
-                );
-            
-                const spriteMaterial = new THREE.SpriteMaterial({
-                    map: numberTexture,
-                    alphaTest: 0.5,
-                    transparent: true,
-                    depthTest: false,
-                    depthWrite: false
-                });
-            
-                sprite = new THREE.Sprite(spriteMaterial);
-                sprite.position.set(250, 250, 250);
-                sprite.scale.set(60, 60, 1);
-            
-                this.scene.add(sprite);
-            },
-            updateAnnotationOpacity() {
-                if(this.model==null){
-                    return;
-                }
-            },
-            updateScreenPosition() {
+            updateAnnotationScreenPosition() {
                 for(const particular of propertyParticulars){
                     const vector = new THREE.Vector3(0,0,0);
                     vector.copy(particular.pos);
