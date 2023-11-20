@@ -11,7 +11,7 @@ let rootMarginValue = Math.floor(screen.height*0.20);
 let isIOS = false;
 let prevScrollpos = window.screenY;
 let sprite;
-
+let maxFov;
 const propertyParticulars = [
     {
         no: 1,
@@ -126,7 +126,6 @@ const initViewerApp = function (initPropID) {
             this.canvas = document.getElementById('planViewerCanvas');
             for(const particular of propertyParticulars){
                 particular.annotation = document.getElementById('annotation'+particular.no);
-                console.log(particular);
             }
             this.initViewerEngine();
         },
@@ -145,12 +144,11 @@ const initViewerApp = function (initPropID) {
                 this.renderer.setPixelRatio( window.devicePixelRatio );
                 this.scene = new THREE.Scene();
                 this.scene.background = new THREE.Color('#606070');
-                this.camera = new THREE.PerspectiveCamera(10, this.canvasWidth/this.canvasHeight,1,3000);
+                this.camera = new THREE.PerspectiveCamera(bigCanvas ? 10: 20 , this.canvasWidth/this.canvasHeight,1,3000);
                 this.camera.position.set(0,180,0);
                 this.controls = new OrbitControls(this.camera,  this.renderer.domElement);
                 this.controls.zoomSpeed = bigCanvas ? 3 : 1 ;
                 this.controls.rotateSpeed=0.2;
-                this.controls.coupleCenters = false;
                 this.scene.add( new THREE.HemisphereLight( 0xaaaaaa, 0x444444, 2 ) );
                 const light = new THREE.DirectionalLight( 0xffffff, 1 );
                 light.position.set( -10, 100, 0 );
@@ -226,7 +224,7 @@ const initViewerApp = function (initPropID) {
             },
             resetPlanView(){
                 this.immersiveMode = false;
-                this.camera.fov = 10;
+                this.camera.fov = bigCanvas ? 10: 20;
                 this.camera.position.set(0,180,0);
                 this.camera.updateProjectionMatrix();
                 this.controls.zoomSpeed = bigCanvas ? 3 : 1 ;
@@ -237,13 +235,13 @@ const initViewerApp = function (initPropID) {
             },
             updateLookAt(){
                 this.factor += 0.005;
-                this.camera.fov = Math.min(10+ this.factor*50*3,60);
+                this.camera.fov = Math.min(10+ this.factor*(maxFov-10)*3,maxFov);
                 this.camera.updateProjectionMatrix(); 
                 this.controls.update();
             },
             updateFov(){
                 delete this.camera._gsTweenID;
-                this.camera.fov = 30;
+                this.camera.fov = maxFov;
                 this.camera.zoom = 0.5;
                 this.camera.lookAt(this.particular.lookAt);
                 this.camera.updateProjectionMatrix();
@@ -385,13 +383,6 @@ const initViewerApp = function (initPropID) {
                 if(this.model==null){
                     return;
                 }
-                const meshDistance = this.camera.position.distanceTo(this.model.position);
-                const spriteDistance = this.camera.position.distanceTo(sprite.position);
-                // sprite.material.opacity = spriteBehindObject ? 0.25 : 1;
-            
-                // Do you want a number that changes size according to its position?
-                // Comment out the following line and the `::before` pseudo-element.
-                // sprite.material.opacity = 0;
             },
             updateScreenPosition() {
                 for(const particular of propertyParticulars){
@@ -401,12 +392,12 @@ const initViewerApp = function (initPropID) {
                     vector.project(this.camera);
                     vector.x = Math.round((0.5 + vector.x / 2) * (canvas.width / window.devicePixelRatio));
                     vector.y = Math.round((0.5 - vector.y / 2) * (canvas.height / window.devicePixelRatio));
-                    if(vector.y < 0 || vector.x < 0 || vector.y > canvas.height || vector.x > canvas.width || this.immersiveMode){
+                    if(vector.y < 0 || vector.x < 0 || vector.y > this.canvasHeight || vector.x > this.canvasWidth || this.immersiveMode){
                         particular.annotation.style.display = 'none';
                     }else{
                         particular.annotation.style.display = 'block';
-                        particular.annotation.style.top = `${vector.y}px`;
-                        particular.annotation.style.left = `${vector.x}px`;
+                        particular.annotation.style.top = `calc(${vector.y}px - 0.7rem)`;
+                        particular.annotation.style.left = `calc(${vector.x}px - 0.7rem)`;
                     }
                 }
             }
@@ -450,6 +441,7 @@ const initViewerApp = function (initPropID) {
             if(screen.width<=500){
                 bigCanvas = false;
             }
+            maxFov = bigCanvas ? 30 : 50;
             isIOS = /iPad|iPhone|iPod/.test( navigator.userAgent );
 
             for(const pro of properties){
