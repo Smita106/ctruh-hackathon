@@ -337,6 +337,7 @@ const initViewerApp = function (initPropID) {
                 for(const particular of propertyParticulars){
                     const vector = new THREE.Vector3(0,0,0);
                     vector.copy(particular.pos);
+                    vector.y= 1;
                     const canvas = this.renderer.domElement;
                     vector.project(this.camera);
                     vector.x = Math.round((0.5 + vector.x / 2) * (canvas.width / window.devicePixelRatio));
