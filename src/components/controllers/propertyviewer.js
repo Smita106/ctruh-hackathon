@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { GroundProjectedSkybox } from 'three/addons/objects/GroundProjectedSkybox.js';
 
 let viewerApp;
 let bigCanvas = true;
@@ -148,7 +149,10 @@ const initViewerApp = function (initPropID) {
                 this.camera.position.set(0,180,0);
                 this.controls = new OrbitControls(this.camera,  this.renderer.domElement);
                 this.controls.zoomSpeed = bigCanvas ? 3 : 1 ;
-                this.controls.rotateSpeed=0.2;
+                this.controls.rotateSpeed = bigCanvas ? 0.2 : 0.8;
+                this.controls.maxDistance = 300;
+                this.controls.minDistance = 2;
+                this.controls.maxPolarAngle = Math.PI/2;
                 this.scene.add( new THREE.HemisphereLight( 0xaaaaaa, 0x444444, 2 ) );
                 const light = new THREE.DirectionalLight( 0xffffff, 1 );
                 light.position.set( -10, 100, 0 );
@@ -158,6 +162,7 @@ const initViewerApp = function (initPropID) {
                 dracoLoader.setDecoderPath('./libs/draco/');
                 loader.setDRACOLoader(dracoLoader)
                 loader.load( './assets/model/simple3Dplan.glb', this.gltFLoaded);
+                new THREE.TextureLoader().load( './assets/model/sky7.jpg', this.bgLoadComplete );
                 //Enable rendering only when canvas is visible in viewport
                 let observer = new IntersectionObserver(this.manageRendererByVisibility,{
                     root: null,
@@ -168,6 +173,8 @@ const initViewerApp = function (initPropID) {
             },
             gltFLoaded(gltf){
                 this.model = gltf.scene;
+                this.ceiling = gltf.scene.children[1];
+                this.ceiling.visible = false;
                 gltf.scene.scale.set(1,1,1);
                 gltf.scene.position.set(0,0,0);
                 const p1 = new THREE.PointLight( 0xffffff, 15, 100 );
@@ -196,6 +203,13 @@ const initViewerApp = function (initPropID) {
                 // this.scene.add( pointLightHelper );
                 this.scene.add(gltf.scene);
             },
+            bgLoadComplete(texture){
+                this.skybox = new GroundProjectedSkybox( texture );
+				this.skybox.scale.setScalar( 1000 );
+                this.skybox.height = 80;
+				this.scene.add( this.skybox );
+                this.skybox.visible = false;
+            },
             startRendering(){
                 this.renderer.setAnimationLoop(this.animate);
             },
@@ -220,12 +234,16 @@ const initViewerApp = function (initPropID) {
                   });
             },
             resetPlanView(){
+                this.ceiling.visible = false;
                 this.immersiveMode = false;
                 this.camera.fov = bigCanvas ? 10: 20;
                 this.camera.position.set(0,180,0);
                 this.camera.updateProjectionMatrix();
                 this.controls.zoomSpeed = bigCanvas ? 3 : 1 ;
+                this.controls.maxPolarAngle = Math.PI/2;
                 this.controls.reset();
+                if(this.skybox!=null)
+                    this.skybox.visible = false;
             },
             isBigCanvas(){
                 return bigCanvas;
@@ -238,22 +256,24 @@ const initViewerApp = function (initPropID) {
             },
             updateFov(){
                 delete this.camera._gsTweenID;
+                this.ceiling.visible = true;
                 this.camera.fov = maxFov;
                 this.camera.zoom = 0.5;
                 this.camera.lookAt(this.particular.lookAt);
                 this.camera.updateProjectionMatrix();
                 this.controls.zoomSpeed = 1 ;
-                this.controls.enabled = true;
-                this.controls.target.x = this.camera.position.x-1;
+                this.controls.target.x = this.camera.position.x-0.5;
                 this.controls.target.y = this.camera.position.y;
-                this.controls.target.z = this.camera.position.z-1;
+                this.controls.target.z = this.camera.position.z-0.5;
+                this.controls.maxPolarAngle = Math.PI;
                 this.controls.update();
+                if (this.skybox!=null)
+                    this.skybox.visible = true;
             },
             moveToView(particular){
                 this.immersiveMode = true;
                 this.particular = particular;
                 this.factor = 0;
-                this.controls.enabled = false;
                 this.controls.zoomSpeed = 1;
                 TweenMax.to(this.camera.position,1.5, {
                     x: particular.pos.x,
