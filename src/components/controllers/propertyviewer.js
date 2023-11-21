@@ -33,42 +33,42 @@ const propertyParticulars = [
         name: 'kitchen',
         area: 15,
         pos: new THREE.Vector3(1.7,3.5,2.4),
-        lookAt: new THREE.Vector3(0,0,0),
+        lookAt: new THREE.Vector3(0,3,0),
     },
     {
         no: 4,
         name: 'wc',
         area: 11,
-        pos: new THREE.Vector3(-2.8,3.5,13),
-        lookAt: new THREE.Vector3(0,0,0),
+        pos: new THREE.Vector3(-3.2,3.5,13),
+        lookAt: new THREE.Vector3(0,3,0),
     },
     {
         no: 5,
         name: 'bedroom',
         area: 24,
         pos: new THREE.Vector3(-9.8,3.5,9.7),
-        lookAt: new THREE.Vector3(0,0,0),
+        lookAt: new THREE.Vector3(0,3,0),
     },
     {
         no: 6,
         name: 'Dinning',
         area: 12,
         pos: new THREE.Vector3(-6.7,3.5,1.9),
-        lookAt: new THREE.Vector3(0,0,0),
+        lookAt: new THREE.Vector3(0,3,0),
     },
     {
         no: 7,
         name: 'WC',
         area: 14,
         pos: new THREE.Vector3(13.2,3.5,7.1),
-        lookAt: new THREE.Vector3(0,0,0),
+        lookAt: new THREE.Vector3(0,3,0),
     },
     {
         no: 8,
         name: 'bedroom',
         area: 28,
         pos: new THREE.Vector3(14,3.5,-4),
-        lookAt: new THREE.Vector3(0,0,0),
+        lookAt: new THREE.Vector3(0,3,0),
     }
 ];
 const initViewerApp = function (initPropID) {
@@ -255,32 +255,40 @@ const initViewerApp = function (initPropID) {
                 this.controls.update();
             },
             updateFov(){
+                if (this.skybox!=null)
+                    this.skybox.visible = true;
                 delete this.camera._gsTweenID;
                 this.ceiling.visible = true;
                 this.camera.fov = maxFov;
-                this.camera.zoom = 0.5;
                 this.camera.lookAt(this.particular.lookAt);
                 this.camera.updateProjectionMatrix();
                 this.controls.zoomSpeed = 1 ;
-                this.controls.target.x = this.camera.position.x-0.5;
-                this.controls.target.y = this.camera.position.y;
-                this.controls.target.z = this.camera.position.z-0.5;
                 this.controls.maxPolarAngle = Math.PI;
                 this.controls.update();
-                if (this.skybox!=null)
-                    this.skybox.visible = true;
+
             },
             moveToView(particular){
+                this.resetPlanView();
                 this.immersiveMode = true;
                 this.particular = particular;
                 this.factor = 0;
                 this.controls.zoomSpeed = 1;
+                this.controls.target.x = this.particular.pos.x-0.5;
+                this.controls.target.y = this.particular.pos.y+0.2;
+                this.controls.target.z = this.particular.pos.z-0.5;
+                this.camera.updateProjectionMatrix();
                 TweenMax.to(this.camera.position,1.5, {
                     x: particular.pos.x,
-                    y: particular.pos.y,
+                    y: particular.pos.y+0.2,
                     z: particular.pos.z,
                     onUpdate: this.updateLookAt,
                     onComplete: this.updateFov,
+                    ease: Sine.easeOut,
+                  },
+                );
+                TweenMax.to(this.camera,1.5, {
+                    zoom: 0.5,
+                    onUpdate: ()=>{this.camera.updateProjectionMatrix();},
                     ease: Sine.easeOut,
                   },
                 );
