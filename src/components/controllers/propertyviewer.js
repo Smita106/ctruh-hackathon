@@ -455,7 +455,7 @@ const initViewerApp = function (initPropID) {
                         <img style="height:100%; width:100%" src="./assets/images/ios-arkit.svg">
                     </button>
                 </div>
-                <div id="fullScreenControls">
+                <div v-if="isBigCanvas()" id="fullScreenControls">
                     <button class="planViewerControls" style="padding:0.65rem" @click="toggleFullScreen()">
                         <img v-if="isFullScreen" style="height:100%; width:100%" src="./assets/images/minimize.svg">
                         <img v-else style="height:100%; width:100%" src="./assets/images/fullscreen.svg">
