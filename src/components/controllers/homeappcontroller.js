@@ -1,6 +1,6 @@
 import { createApp } from "vue/dist/vue.esm-bundler.js";
 import { Slider } from "./slider";
-import properties from "../../propertyData";
+import {properties} from "../../propertyData";
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader';

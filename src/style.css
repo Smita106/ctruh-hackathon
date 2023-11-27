@@ -916,6 +916,50 @@ z-index: 10;
   color: #303030;
   letter-spacing: 0.5px;
 }
+
+#amenitiesSection{
+  position: relative;
+  width: 100%;
+  margin-top: 2rem;
+}
+#amenitiesSectionHeader{
+  height: 3rem;
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+  font-size: 1.75rem;
+  font-family: Roboto;
+  font-weight: 600;
+  color: rgb(89, 89, 89);
+  letter-spacing: 1px;
+}
+#amenitieisDetailContainer{
+  background-color: #f0f0f7;
+  padding: 1rem;
+  width: calc(100% - 2rem);
+  border-radius: 0.25rem;
+  box-shadow: 0 0 4px rgb(189, 189, 189);
+  display: grid;
+  grid-template-columns: auto auto auto auto auto;
+  grid-gap: 1rem;
+}
+.amenitiesDiv{
+  padding: 0.5rem;
+  background-color: #eaeaf5;
+  border-radius: 0.5rem;
+  border: 1px solid #cbcbd1;
+  display: flex;
+  flex-direction: column;
+}
+.amenitiesIcon{
+  height: 3rem;
+  padding: 0.5rem;
+}
+.amenitiesText{
+  height: 2rem;
+  text-align: center;
+  font-family: Roboto;
+  line-height: 2rem;
+}
 #contactUsContainer{
 width: 28%;
 }

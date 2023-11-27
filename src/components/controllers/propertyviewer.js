@@ -1,5 +1,5 @@
 import { createApp } from "vue/dist/vue.esm-bundler.js";
-import properties from "../../propertyData";
+import {properties, amenitiesIconMap} from "../../propertyData";
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -533,6 +533,12 @@ const initViewerApp = function (initPropID) {
             },
             isBigCanvas(){
                 return bigCanvas;
+            },
+            getSvgFileNameForAmenity(amenity){
+                if(amenity in amenitiesIconMap){
+                    return amenitiesIconMap[amenity];
+                }
+                return amenitiesIconMap['default'];
             }
         },
         template: `
@@ -560,7 +566,7 @@ const initViewerApp = function (initPropID) {
                         </span>
                         <span class="sidenameItemTitle" :class="activeSection == 'plan' ? 'activeSidenameItemTitle' : ''" >Plan Details</span>
                     </a>
-                    <a class="sidenavItem" :class="activeSection == 'amenities' ? 'activeSideNavItem' : ''" href="#amenities" @click="setActiveSection('amenities')">
+                    <a class="sidenavItem" :class="activeSection == 'amenities' ? 'activeSideNavItem' : ''" href="#amenitiesSection" @click="setActiveSection('amenities')">
                         <span class="sidenavIconContainer">
                             <svg class="sidenavIcon" viewBox="0 0 12 12" fill="none" >
                                 <path d="M10.8723 8.57286V5.26481C10.8723 4.63034 10.3561 4.11408 9.72153 4.11408H2.43497V2.92207C2.43497 2.74608 2.34712 2.58309 2.19989 2.48588L0.880808 1.6153C0.728831 1.51499 0.52443 1.55689 0.42419 1.7088C0.323812 1.86078 0.365711 2.06518 0.517619 2.16542L1.77581 2.99589V8.57286C1.34272 8.71142 1.02852 9.11548 1.02852 9.59109C1.02852 10.1808 1.51156 10.6606 2.10543 10.6606C2.69916 10.6606 3.18234 10.1808 3.18234 9.59109C3.18234 9.11548 2.86813 8.71142 2.43497 8.57286V8.29058H10.213V8.57286C9.77994 8.71142 9.46573 9.11548 9.46573 9.59109C9.46573 10.1808 9.94877 10.6606 10.5426 10.6606C11.1364 10.6606 11.6195 10.1808 11.6195 9.59109C11.6195 9.11548 11.3053 8.71149 10.8723 8.57286Z" fill="white"></path><path d="M6.65373 2.00068V1.54213C6.65373 1.36009 6.50609 1.21259 6.32419 1.21259C6.14208 1.21259 5.99457 1.36009 5.99457 1.54213V2.00068C5.25643 2.13621 4.67294 2.71839 4.53693 3.45508H8.11131C7.97529 2.71839 7.39181 2.13621 6.65373 2.00068Z" fill="white"></path>
@@ -747,6 +753,21 @@ const initViewerApp = function (initPropID) {
                                     </ul>
                                 </div>
                             </div>
+                        </div>
+                        <div id="amenitiesSection">
+                            <div id="amenitiesSectionHeader">
+                                <span>Amenities</span>
+                            </div>
+                            <div id="amenitieisDetailContainer">
+                                <div class="amenitiesDiv" v-for="amenity in propertyData.amenities">
+                                    <div class="amenitiesIcon">
+                                        <img style="height:100%;width:100%" :src="'./assets/images/'+getSvgFileNameForAmenity(amenity)"/>
+                                    </div>
+                                    <div class="amenitiesText">
+                                        {{amenity}}
+                                    </div> 
+                                </div>
+                            </div> 
                         </div>
                     </div>
 
