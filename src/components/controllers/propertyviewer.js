@@ -480,7 +480,7 @@ const initViewerApp = function (initPropID) {
             return{
                 propID: initPropID,
                 propertyData: null,
-                activeSection: 'overview',
+                activeSection: 'overviewSection',
                 activeImage: '',
                 thumbnails: [],
             };
@@ -506,19 +506,31 @@ const initViewerApp = function (initPropID) {
             }
         },
         mounted(){
-            if(!bigCanvas){
-                window.onscroll = function(e) { 
-                    const currentScrollPos = window.scrollY;
-                    if (prevScrollpos > currentScrollPos) {
-                        document.getElementById("headerPanelID").style.top = "0";
-                    } else {
-                        document.getElementById("headerPanelID").style.top = "-5rem";
-                    }
-                    prevScrollpos = currentScrollPos;
-                    }
-           }
+            this.sectionsDom = [];
+            this.sectionsDom.push(document.getElementById('overviewSection'));
+            this.sectionsDom.push(document.getElementById('planSection'));
+            this.sectionsDom.push(document.getElementById('amenitiesSection'));
+            this.sectionsDom.push(document.getElementById('localitySection'));
+            this.sectionsDom.push(document.getElementById('builderSection'));
+            window.onscroll = this.onScroll;
         },
         methods:{
+            onScroll(){
+                const currentScrollPos = window.scrollY;
+                if (prevScrollpos > currentScrollPos) {
+                    document.getElementById("headerPanelID").style.top = "0";
+                } else {
+                    document.getElementById("headerPanelID").style.top = "-5rem";
+                }
+                prevScrollpos = currentScrollPos;
+                for(const section of this.sectionsDom){
+                    if(section !=null || section != undefined){
+                        if(section.getBoundingClientRect().top >= 0 && section.getBoundingClientRect().top < window.innerHeight / 3){
+                            this.setActiveSection(section.id);
+                        }
+                    }
+                }
+            },
             setActiveSection(section){
                 this.activeSection = section;
             },
@@ -545,16 +557,16 @@ const initViewerApp = function (initPropID) {
             <headercmp></headercmp>
             <div id="viewerBody">
                 <div id="sidenav">
-                    <a class="sidenavItem" :class="activeSection == 'overview' ? 'activeSideNavItem' : ''" href="#overviewSection" @click="setActiveSection('overview')">
+                    <a class="sidenavItem" :class="activeSection == 'overviewSection' ? 'activeSideNavItem' : ''" href="#overviewSection" @click="setActiveSection('overviewSection')">
                         <span class="sidenavIconContainer">
                             <svg class="sidenavIcon" viewBox="0 0 6 12" fill="none">
                                 <g clip-path="url(#clip0)"><path d="M1.09961 9.94287H1.59961V6.55713H1.09961C0.823459 6.55713 0.599609 6.34727 0.599609 6.08838V4.96875C0.599609 4.70986 0.823459 4.5 1.09961 4.5H3.89961C4.17576 4.5 4.39961 4.70986 4.39961 4.96875V9.94287H4.89961C5.17576 9.94287 5.39961 10.1527 5.39961 10.4116V11.5312C5.39961 11.7901 5.17576 12 4.89961 12H1.09961C0.823459 12 0.599609 11.7901 0.599609 11.5312V10.4116C0.599609 10.1527 0.823459 9.94287 1.09961 9.94287ZM2.99961 0C2.00548 0 1.19961 0.755508 1.19961 1.6875C1.19961 2.61949 2.00548 3.375 2.99961 3.375C3.99373 3.375 4.79961 2.61949 4.79961 1.6875C4.79961 0.755508 3.99371 0 2.99961 0Z" fill="white"></path></g>
                                 <defs><clipPath id="clip0"><rect width="4.8" height="12" fill="white" transform="translate(0.599609)"></rect></clipPath></defs>
                             </svg>
                         </span>
-                        <span class="sidenameItemTitle" :class="activeSection == 'overview' ? 'activeSidenameItemTitle' : ''" >Overview</span>
+                        <span class="sidenameItemTitle" :class="activeSection == 'overviewSection' ? 'activeSidenameItemTitle' : ''" >Overview</span>
                     </a>
-                    <a class="sidenavItem" :class="activeSection == 'plan' ? 'activeSideNavItem' : ''" href="#planSection" @click="setActiveSection('plan')">
+                    <a class="sidenavItem" :class="activeSection == 'planSection' ? 'activeSideNavItem' : ''" href="#planSection" @click="setActiveSection('planSection')">
                         <span class="sidenavIconContainer">
                         <svg class="sidenavIcon" fill="white" viewBox="0 0 284.999 284.999">
                             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -564,17 +576,17 @@ const initViewerApp = function (initPropID) {
                             <path d="M61.063,135.709c-3.742,0-6.778,3.04-6.778,6.788v50.898c0,3.748,3.036,6.779,6.778,6.779h169.651 c3.742,0,6.779-3.031,6.779-6.779V91.604c0-3.748-3.037-6.779-6.779-6.779h-67.86c-3.742,0-6.778,3.031-6.778,6.779v44.104H61.063 V135.709z M190.006,149.285v37.323h-74.657v-37.323H190.006z M67.86,149.285h33.931v37.323H67.86V149.285z M203.563,186.607 v-37.323h20.373v37.323H203.563z M223.937,98.393v37.316h-54.285V98.393H223.937z"></path>
                             </g> </g> </g></svg>
                         </span>
-                        <span class="sidenameItemTitle" :class="activeSection == 'plan' ? 'activeSidenameItemTitle' : ''" >Plan Details</span>
+                        <span class="sidenameItemTitle" :class="activeSection == 'planSection' ? 'activeSidenameItemTitle' : ''" >Plan Details</span>
                     </a>
-                    <a class="sidenavItem" :class="activeSection == 'amenities' ? 'activeSideNavItem' : ''" href="#amenitiesSection" @click="setActiveSection('amenities')">
+                    <a class="sidenavItem" :class="activeSection == 'amenitiesSection' ? 'activeSideNavItem' : ''" href="#amenitiesSection" @click="setActiveSection('amenitiesSection')">
                         <span class="sidenavIconContainer">
                             <svg class="sidenavIcon" viewBox="0 0 12 12" fill="none" >
                                 <path d="M10.8723 8.57286V5.26481C10.8723 4.63034 10.3561 4.11408 9.72153 4.11408H2.43497V2.92207C2.43497 2.74608 2.34712 2.58309 2.19989 2.48588L0.880808 1.6153C0.728831 1.51499 0.52443 1.55689 0.42419 1.7088C0.323812 1.86078 0.365711 2.06518 0.517619 2.16542L1.77581 2.99589V8.57286C1.34272 8.71142 1.02852 9.11548 1.02852 9.59109C1.02852 10.1808 1.51156 10.6606 2.10543 10.6606C2.69916 10.6606 3.18234 10.1808 3.18234 9.59109C3.18234 9.11548 2.86813 8.71142 2.43497 8.57286V8.29058H10.213V8.57286C9.77994 8.71142 9.46573 9.11548 9.46573 9.59109C9.46573 10.1808 9.94877 10.6606 10.5426 10.6606C11.1364 10.6606 11.6195 10.1808 11.6195 9.59109C11.6195 9.11548 11.3053 8.71149 10.8723 8.57286Z" fill="white"></path><path d="M6.65373 2.00068V1.54213C6.65373 1.36009 6.50609 1.21259 6.32419 1.21259C6.14208 1.21259 5.99457 1.36009 5.99457 1.54213V2.00068C5.25643 2.13621 4.67294 2.71839 4.53693 3.45508H8.11131C7.97529 2.71839 7.39181 2.13621 6.65373 2.00068Z" fill="white"></path>
                             </svg>
                         </span>
-                        <span class="sidenameItemTitle" :class="activeSection == 'amenities' ? 'activeSidenameItemTitle' : ''">Amenities</span>
+                        <span class="sidenameItemTitle" :class="activeSection == 'amenitiesSection' ? 'activeSidenameItemTitle' : ''">Amenities</span>
                     </a>
-                    <a class="sidenavItem" :class="activeSection == 'locality' ? 'activeSideNavItem' : ''" href="#localitySection" @click="setActiveSection('locality')">
+                    <a class="sidenavItem" :class="activeSection == 'localitySection' ? 'activeSideNavItem' : ''" href="#localitySection" @click="setActiveSection('localitySection')">
                         <span class="sidenavIconContainer">
                         <svg class="sidenavIcon" viewBox="-1.5 0 15 15" fill="white">
                             <g stroke-linecap="round" stroke-linejoin="round"></g>
@@ -582,9 +594,9 @@ const initViewerApp = function (initPropID) {
                             </path> </g>
                         </svg>
                         </span>
-                        <span class="sidenameItemTitle" :class="activeSection == 'locality' ? 'activeSidenameItemTitle' : ''">Locality</span>
+                        <span class="sidenameItemTitle" :class="activeSection == 'localitySection' ? 'activeSidenameItemTitle' : ''">Locality</span>
                     </a>
-                    <a class="sidenavItem" :class="activeSection == 'developer' ? 'activeSideNavItem' : ''" href="#builderSection" @click="setActiveSection('developer')">
+                    <a class="sidenavItem" :class="activeSection == 'builderSection' ? 'activeSideNavItem' : ''" href="#builderSection" @click="setActiveSection('builderSection')">
                         <span class="sidenavIconContainer">
                         <svg class="sidenavIcon" viewBox="0 0 24 24" fill="none">
                             <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -592,7 +604,7 @@ const initViewerApp = function (initPropID) {
                             </path></g>
                         </svg>
                         </span>
-                        <span class="sidenameItemTitle" :class="activeSection == 'developer' ? 'activeSidenameItemTitle' : ''">About Developer</span>
+                        <span class="sidenameItemTitle" :class="activeSection == 'builderSection' ? 'activeSidenameItemTitle' : ''">About Developer</span>
                     </a>
                 </div>
                 <div id="sectionArea">
