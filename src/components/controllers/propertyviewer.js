@@ -119,6 +119,7 @@ const initViewerApp = function (initPropID) {
         data(){
             return{
                 immersiveMode : false,
+                isFullScreen: false,
             };
         },
         created(){
@@ -378,28 +379,97 @@ const initViewerApp = function (initPropID) {
                         particular.annotation.style.left = `calc(${vector.x}px - 0.7rem)`;
                     }
                 }
+            },
+            toggleFullScreen(){
+                this.isFullScreen = !this.isFullScreen;
+                const container = document.getElementById('planViewerContainer');
+                const particularContainer = document.getElementById('planParticularsContainer');
+                const viewerControlContainer = document.getElementById('planViewerControlsDiv');
+                const toggleControlContainer = document.getElementById('fullScreenControls');
+                const canvas = document.getElementById('planViewerCanvas');
+                if(this.isFullScreen){
+                    document.body.style.overflow = 'hidden';
+                    container.classList.remove('planViewerContainerSmall');
+                    container.classList.add('planViewerContainerLarge');
+                    canvas.style.width = '85%';
+                    canvas.style.height = '100%';
+                    this.canvasHeight = canvas.getBoundingClientRect().height;
+                    this.canvasWidth = canvas.getBoundingClientRect().width;
+                    this.camera.aspect = this.canvasWidth / this.canvasHeight;
+				    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(canvas.getBoundingClientRect().width,canvas.getBoundingClientRect().height);
+                    viewerControlContainer.style.top = 'calc(100vh - 5rem)';
+                    viewerControlContainer.style.right = 'calc(15% + 2rem)';
+                    toggleControlContainer.style.right = 'calc(15% + 1.5rem)';
+                    for(const annotation of document.getElementsByClassName('annotationDiv')){
+                        annotation.style.position = 'fixed';
+                        annotation.style.width = '2rem';
+                        annotation.style.height = '2rem';
+                        annotation.style.lineHeight = '2rem';
+                        annotation.style.fontSize = '20px';
+                    }
+                    particularContainer.classList.remove('planParticularsContainerSmall');
+                    particularContainer.classList.add('planParticularsContainerFull');
+                    for(const particular of document.getElementsByClassName('planParticularsDiv')){
+                        particular.style.marginBottom = '1rem';
+                    }
+                }else{
+                    document.body.style.removeProperty('overflow');
+                    container.classList.remove('planViewerContainerLarge');
+                    container.classList.add('planViewerContainerSmall');
+                    canvas.style.removeProperty('width');
+                    canvas.style.removeProperty('height');
+                    this.canvasHeight = canvas.getBoundingClientRect().height;
+                    this.canvasWidth = canvas.getBoundingClientRect().width;
+                    this.camera.aspect = this.canvasWidth / this.canvasHeight;
+				    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(canvas.getBoundingClientRect().width,canvas.getBoundingClientRect().height);
+                    viewerControlContainer.style.removeProperty('top');
+                    viewerControlContainer.style.removeProperty('right');
+                    toggleControlContainer.style.removeProperty('right');
+                    for(const annotation of document.getElementsByClassName('annotationDiv')){
+                        annotation.style.position = 'absolute';
+                        annotation.style.width = '1.4rem';
+                        annotation.style.height = '1.4rem';
+                        annotation.style.lineHeight = '1.4rem';
+                        annotation.style.fontSize = '15px';
+                    }
+                    particularContainer.classList.remove('planParticularsContainerFull');
+                    particularContainer.classList.add('planParticularsContainerSmall');
+                    for(const particular of document.getElementsByClassName('planParticularsDiv')){
+                        particular.style.removeProperty('margin-bottom');
+                    }
+                }
             }
         },
         template: `
-            <div id="planViewerControlsDiv">
-                <button class="planViewerControls" style="padding:0.5rem" @click="resetPlanView()">
-                    <img style="height:100%; width:100%" src="./assets/images/reset.svg">
-                </button>
-                <a v-if="isIOSDevice() && !isBigCanvas()" class="planViewerControls" id="arLink" rel="ar" href="./assets/model/simple3Dplan.usdz">
-                    <img style="height:100%; width:100%" src="./assets/images/ios-arkit.svg">
-                </a>
-                <button v-if="!isIOSDevice() && !isBigCanvas()" class="planViewerControls" @click="openARView()">
-                    <img style="height:100%; width:100%" src="./assets/images/ios-arkit.svg">
-                </button>
-            </div>
-            <canvas id="planViewerCanvas"></canvas>
-            <div class="annotationDiv" :id="'annotation'+particular.no" v-for="particular in getParticulars()" @click="moveToView(particular)" :title="particular.name">{{particular.no}}</div>
-            <canvas id="planViewerAnnotationCanvas"></canvas>
-            <div id="planParticularsContainer">
-                <div class="planParticularsDiv" v-for="particular in getParticulars()" @click="moveToView(particular)">
-                    <div class="planParticularSlNo">{{particular.no}}</div>
-                    <div class="planParticular">{{particular.name}}</div>
-                    <div class="planParticularArea"><span style="font-weight:600">{{particular.area}}</span>m²</div>
+            <div id="planViewerContainer" class="planViewerContainerSmall">
+                <div id="planViewerControlsDiv">
+                    <button class="planViewerControls" style="padding:0.5rem" @click="resetPlanView()">
+                        <img style="height:100%; width:100%" src="./assets/images/reset.svg">
+                    </button>
+                    <a v-if="isIOSDevice() && !isBigCanvas()" class="planViewerControls" id="arLink" rel="ar" href="./assets/model/simple3Dplan.usdz">
+                        <img style="height:100%; width:100%" src="./assets/images/ios-arkit.svg">
+                    </a>
+                    <button v-if="!isIOSDevice() && !isBigCanvas()" class="planViewerControls" @click="openARView()">
+                        <img style="height:100%; width:100%" src="./assets/images/ios-arkit.svg">
+                    </button>
+                </div>
+                <div id="fullScreenControls">
+                    <button class="planViewerControls" style="padding:0.65rem" @click="toggleFullScreen()">
+                        <img v-if="isFullScreen" style="height:100%; width:100%" src="./assets/images/minimize.svg">
+                        <img v-else style="height:100%; width:100%" src="./assets/images/fullscreen.svg">
+                    </button>
+                </div>
+                <canvas id="planViewerCanvas"></canvas>
+                <div class="annotationDiv" :id="'annotation'+particular.no" v-for="particular in getParticulars()" @click="moveToView(particular)" :title="particular.name">{{particular.no}}</div>
+                <canvas id="planViewerAnnotationCanvas"></canvas>
+                <div id="planParticularsContainer" class="planParticularsContainerSmall">
+                    <div class="planParticularsDiv" v-for="particular in getParticulars()" @click="moveToView(particular)">
+                        <div class="planParticularSlNo">{{particular.no}}</div>
+                        <div class="planParticular">{{particular.name}}</div>
+                        <div class="planParticularArea"><span style="font-weight:600">{{particular.area}}</span>m²</div>
+                    </div>
                 </div>
             </div>
         `,     
@@ -576,9 +646,7 @@ const initViewerApp = function (initPropID) {
                             <div id="planSectionHeader">
                                 <span>View Plan 3D layout</span>
                             </div>
-                            <div id="planViewerContainer">
-                                <planviewer :propID=propID :propertyData=propertyData></planviewer>
-                            </div>
+                            <planviewer :propID=propID :propertyData=propertyData></planviewer>
                             <div id="planDetailContainer" v-if="isBigCanvas()">
                                 <div class="planDetailRow">
                                     <div class="planDetailColumn">
