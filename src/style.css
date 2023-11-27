@@ -698,7 +698,7 @@ z-index: 10;
   width: 100%;
   margin-top: 2rem;
 }
-#planSectionHeader{
+.sectionHeader{
   height: 3rem;
   margin-top: 5rem;
   margin-bottom: 1.5rem;
@@ -874,7 +874,7 @@ z-index: 10;
   line-height: 3rem;
   padding-right: 0.5rem;
 }
-#planDetailContainer{
+.sectionDetailContainer{
   margin-top: 2rem;
   background-color: #f0f0f7;
   padding: 1rem;
@@ -958,7 +958,13 @@ z-index: 10;
   height: 2rem;
   text-align: center;
   font-family: Roboto;
+  font-size: 0.875rem;
   line-height: 2rem;
+}
+#localitySection{
+  position: relative;
+  width: 100%;
+  margin-top: 2rem;
 }
 #contactUsContainer{
 width: 28%;

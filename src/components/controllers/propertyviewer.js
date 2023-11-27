@@ -574,7 +574,7 @@ const initViewerApp = function (initPropID) {
                         </span>
                         <span class="sidenameItemTitle" :class="activeSection == 'amenities' ? 'activeSidenameItemTitle' : ''">Amenities</span>
                     </a>
-                    <a class="sidenavItem" :class="activeSection == 'locality' ? 'activeSideNavItem' : ''" href="#locality" @click="setActiveSection('locality')">
+                    <a class="sidenavItem" :class="activeSection == 'locality' ? 'activeSideNavItem' : ''" href="#localitySection" @click="setActiveSection('locality')">
                         <span class="sidenavIconContainer">
                         <svg class="sidenavIcon" viewBox="-1.5 0 15 15" fill="white">
                             <g stroke-linecap="round" stroke-linejoin="round"></g>
@@ -584,7 +584,7 @@ const initViewerApp = function (initPropID) {
                         </span>
                         <span class="sidenameItemTitle" :class="activeSection == 'locality' ? 'activeSidenameItemTitle' : ''">Locality</span>
                     </a>
-                    <a class="sidenavItem" :class="activeSection == 'developer' ? 'activeSideNavItem' : ''" href="#developer" @click="setActiveSection('developer')">
+                    <a class="sidenavItem" :class="activeSection == 'developer' ? 'activeSideNavItem' : ''" href="#builderSection" @click="setActiveSection('developer')">
                         <span class="sidenavIconContainer">
                         <svg class="sidenavIcon" viewBox="0 0 24 24" fill="none">
                             <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -649,11 +649,11 @@ const initViewerApp = function (initPropID) {
                             </div>
                         </div>
                         <div id="planSection">
-                            <div id="planSectionHeader">
+                            <div class="sectionHeader">
                                 <span>View Plan 3D layout</span>
                             </div>
                             <planviewer :propID=propID :propertyData=propertyData></planviewer>
-                            <div id="planDetailContainer" v-if="isBigCanvas()">
+                            <div class="sectionDetailContainer" v-if="isBigCanvas()">
                                 <div class="planDetailRow">
                                     <div class="planDetailColumn">
                                         <div class="planDetailHeading">Area</div>
@@ -702,7 +702,7 @@ const initViewerApp = function (initPropID) {
                                     </ul>
                                 </div>
                             </div>
-                            <div id="planDetailContainer" v-else>
+                            <div class="sectionDetailContainer" v-else>
                                 <div class="planDetailRow">
                                     <div class="planDetailColumn">
                                         <div class="planDetailHeading">Area</div>
@@ -768,6 +768,42 @@ const initViewerApp = function (initPropID) {
                                     </div> 
                                 </div>
                             </div> 
+                        </div>
+                        <div id="localitySection">
+                            <div class="sectionHeader">
+                                <span>Locality & Neighbourhood</span>
+                            </div>
+                            <div class="sectionDetailContainer">
+                                <div class="oviewDescription">
+                                    Kolshet Road, Thane, is a burgeoning locality with immense real estate potential. Situated in the Mumbai metropolitan region, it offers a perfect blend of urban convenience and natural beauty.
+                                     This area is witnessing rapid development with numerous residential and commercial projects. Its strategic location, excellent connectivity to major hubs, and proximity to essential amenities make it a prime choice for real estate investors.
+                                      As the infrastructure continues to improve, Kolshet Road is poised for steady appreciation, making it an attractive destination for those seeking long-term property investments.
+                                </div>
+                                <ul class="oviewDescription">
+                                    <li>My Dmall - 0.7 Km</li>
+                                    <li>R-Mall Thane West - 1.1 Km</li>
+                                    <li>Viviana Mall -3.1 Km</li>
+                                    <li>Kendriya Vidyalaya - 4.6 Km</li>
+                                    <li>Cosmos Mall - 1.2 Km</li>
+                                    <li>Amber International School - 3.3 Km</li>
+                                    <li>Blossom English High School - 0.4 Km</li>
+                                    <li>Daffodils School - 0.8 Km</li>
+                                    <li>Kendriya Vidyalaya - 1.6 Km</li>
+                                </ul>
+                            </div> 
+                        </div>
+                        <div id="builderSection">
+                            <div class="sectionHeader">
+                                <span>About Builder</span>
+                            </div>
+                            <div class="sectionDetailContainer">
+                                <div style="font-family:sans-serif; font-size:1.5rem; margin-bottom:0.5rem;color: #303030;">{{propertyData.builder}}</div>
+                                <div class="oviewDescription">
+                                    {{propertyData.builder}} Group is a well-known real estate developer guided by the vision of ‘Building a Better Life’. 
+                                    The company has created residential, commercial and retail spaces with the highest level of design and craftsmanship. 
+                                    They have delivered the world’s finest developments with uncompromising quality and unparalleled services.
+                                </div>
+                            </div>
                         </div>
                     </div>
 
