@@ -525,7 +525,7 @@ const initViewerApp = function (initPropID) {
                 prevScrollpos = currentScrollPos;
                 for(const section of this.sectionsDom){
                     if(section !=null || section != undefined){
-                        if(section.getBoundingClientRect().top >= 0 && section.getBoundingClientRect().top < window.innerHeight / 3){
+                        if(section.getBoundingClientRect().top >= 0 && section.getBoundingClientRect().top < window.innerHeight / 2){
                             this.setActiveSection(section.id);
                         }
                     }

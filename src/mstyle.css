@@ -372,6 +372,7 @@ z-index: 10;
 #footerBlock{
   width: 100%;
   height: 5em;
+  padding-bottom: 4em;
   background-color: #303030;
 }
 
@@ -723,7 +724,7 @@ z-index: 10;
   width: 100%;
   margin-top: 2rem;
 }
-#planSectionHeader{
+.sectionHeader{
   height: 3rem;
   margin-top: 3rem;
   margin-bottom: 1rem;
@@ -786,7 +787,7 @@ z-index: 10;
 #planViewerControlsDiv{
   position: absolute;
   right: 1rem;
-  top: calc(70vh - 3.5rem); 
+  top: calc(70vh - 1.5rem); 
   z-index: 100;
   height: 3rem;
   display: flex;
@@ -878,7 +879,7 @@ z-index: 10;
   line-height: 2.5rem;
   padding-right: 0.1rem;
 }
-#planDetailContainer{
+.sectionDetailContainer{
   margin-top: 2rem;
   background-color: #f0f0f7;
   padding: 1rem;
@@ -920,6 +921,56 @@ z-index: 10;
   color: #303030;
   letter-spacing: 0.5px;
 }
+#amenitiesSection{
+  position: relative;
+  width: 100%;
+  margin-top: 2rem;
+}
+#amenitiesSectionHeader{
+  height: 3rem;
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+  font-size: 1.75rem;
+  font-family: Roboto;
+  font-weight: 600;
+  color: rgb(89, 89, 89);
+  letter-spacing: 1px;
+}
+#amenitieisDetailContainer{
+  background-color: #f0f0f7;
+  padding: 1rem;
+  width: calc(100% - 2rem);
+  border-radius: 0.25rem;
+  box-shadow: 0 0 4px rgb(189, 189, 189);
+  display: grid;
+  grid-template-columns: auto auto auto;
+  grid-gap: 1rem;
+}
+.amenitiesDiv{
+  padding: 0.25rem;
+  background-color: #eaeaf5;
+  border-radius: 0.5rem;
+  border: 1px solid #cbcbd1;
+  display: flex;
+  flex-direction: column;
+}
+.amenitiesIcon{
+  height: 2rem;
+  padding: 0.5rem;
+}
+.amenitiesText{
+  height: 2rem;
+  text-align: center;
+  font-family: Roboto;
+  font-size: 0.875rem;
+  line-height: 2rem;
+}
+#localitySection{
+  position: relative;
+  width: 100%;
+  margin-top: 2rem;
+}
+
 #contactUsContainer{
 width: 100%;
 }
