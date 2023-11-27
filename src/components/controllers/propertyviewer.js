@@ -326,16 +326,17 @@ const initViewerApp = function (initPropID) {
                 // arRenderer.setSize(window.innerWidth, window.innerHeight);
                 const arCamera = new THREE.PerspectiveCamera();
                 arCamera.matrixAutoUpdate = false;
-
-                const session = await navigator.xr.requestSession("immersive-ar");
+                  
+                try{
+                const session = await navigator.xr.requestSession("immersive-ar").catch(err => {alert(err)});
                 session.updateRenderState({
                     baseLayer: new XRWebGLLayer(session, gl)
                 });
-
-                const referenceSpace = await session.requestReferenceSpace('local');
+                const referenceSpace = await session.requestReferenceSpace('local').catch(err => {alert(err)});
 
                 //Render loop to draw on the AR view.
                 const onXRFrame = (time, frame) => {
+                    try{
                     // Queue up the next draw request.
                     session.requestAnimationFrame(onXRFrame);
                     // Bind the graphics framebuffer to the baseLayer's framebuffer
@@ -359,8 +360,14 @@ const initViewerApp = function (initPropID) {
                     // Render the scene with THREE.WebGLRenderer.
                     arRenderer.render(arScene, arCamera)
                     }
+                    }catch(err){
+                        alert(err);
+                    }
                 }
                 session.requestAnimationFrame(onXRFrame);
+                }catch(err){
+                    alert(err);
+                }
             },
             updateAnnotationScreenPosition() {
                 for(const particular of propertyParticulars){
