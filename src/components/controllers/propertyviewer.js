@@ -320,19 +320,7 @@ const initViewerApp = function (initPropID) {
                 const gl = arCanvas.getContext("webgl", {xrCompatible: true});
                 const arScene = new THREE.Scene();
 
-                // The cube will have a different color on each side.
-                const materials = [
-                new THREE.MeshBasicMaterial({color: 0xff0000}),
-                new THREE.MeshBasicMaterial({color: 0x0000ff}),
-                new THREE.MeshBasicMaterial({color: 0x00ff00}),
-                new THREE.MeshBasicMaterial({color: 0xff00ff}),
-                new THREE.MeshBasicMaterial({color: 0x00ffff}),
-                new THREE.MeshBasicMaterial({color: 0xffff00})
-                ];
-                // arScene.add( new THREE.HemisphereLight( 0xaaaaaa, 0x444444, 2 ) );
-                const cube = new THREE.Mesh(new THREE.BoxGeometry(10, 10), materials);
-                cube.position.set(0, 0, 0);
-                arScene.add(cube);
+                arScene.add(this.model);
                 const arRenderer = new THREE.WebGLRenderer({
                     alpha: true,
                     preserveDrawingBuffer: true,
@@ -340,11 +328,9 @@ const initViewerApp = function (initPropID) {
                     context: gl
                   });
                 arRenderer.autoClear = false;
-                // arRenderer.setSize(window.innerWidth, window.innerHeight);
                 const arCamera = new THREE.PerspectiveCamera();
                 arCamera.matrixAutoUpdate = false;
                   
-                try{
                 const session = await navigator.xr.requestSession("immersive-ar").catch(err => {alert(err)});
                 session.updateRenderState({
                     baseLayer: new XRWebGLLayer(session, gl)
@@ -354,37 +340,34 @@ const initViewerApp = function (initPropID) {
                 //Render loop to draw on the AR view.
                 const onXRFrame = (time, frame) => {
                     try{
-                    // Queue up the next draw request.
-                    session.requestAnimationFrame(onXRFrame);
-                    // Bind the graphics framebuffer to the baseLayer's framebuffer
-                    gl.bindFramebuffer(gl.FRAMEBUFFER, session.renderState.baseLayer.framebuffer)
-                
-                    // Retrieve the pose of the device.
-                    // XRFrame.getViewerPose can return null while the session attempts to establish tracking.
-                    const pose = frame.getViewerPose(referenceSpace);
-                    if (pose) {
-                    // In mobile AR, we only have one view.
-                    const view = pose.views[0];
-                
-                    const viewport = session.renderState.baseLayer.getViewport(view);
-                    arRenderer.setSize(viewport.width, viewport.height)
-                
-                    // Use the view's transform matrix and projection matrix to configure the THREE.camera.
-                    arCamera.matrix.fromArray(view.transform.matrix)
-                    arCamera.projectionMatrix.fromArray(view.projectionMatrix);
-                    arCamera.updateMatrixWorld(true);
-                
-                    // Render the scene with THREE.WebGLRenderer.
-                    arRenderer.render(arScene, arCamera)
-                    }
+                        // Queue up the next draw request.
+                        session.requestAnimationFrame(onXRFrame);
+                        // Bind the graphics framebuffer to the baseLayer's framebuffer
+                        gl.bindFramebuffer(gl.FRAMEBUFFER, session.renderState.baseLayer.framebuffer)
+                    
+                        // Retrieve the pose of the device.
+                        // XRFrame.getViewerPose can return null while the session attempts to establish tracking.
+                        const pose = frame.getViewerPose(referenceSpace);
+                        if (pose) {
+                            // In mobile AR, we only have one view.
+                            const view = pose.views[0];
+                        
+                            const viewport = session.renderState.baseLayer.getViewport(view);
+                            arRenderer.setSize(viewport.width, viewport.height)
+                        
+                            // Use the view's transform matrix and projection matrix to configure the THREE.camera.
+                            arCamera.matrix.fromArray(view.transform.matrix)
+                            arCamera.projectionMatrix.fromArray(view.projectionMatrix);
+                            arCamera.updateMatrixWorld(true);
+                        
+                            // Render the scene with THREE.WebGLRenderer.
+                            arRenderer.render(arScene, arCamera)
+                        }
                     }catch(err){
                         alert(err);
                     }
                 }
                 session.requestAnimationFrame(onXRFrame);
-                }catch(err){
-                    alert(err);
-                }
             },
             updateAnnotationScreenPosition() {
                 for(const particular of propertyParticulars){
