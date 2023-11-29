@@ -118,8 +118,10 @@ const initViewerApp = function (initPropID) {
         props:['propID', 'propertyData'],
         data(){
             return{
+                isLoaded: false,
                 immersiveMode : false,
                 isFullScreen: false,
+                loadPercentage : 10,
             };
         },
         created(){
@@ -131,6 +133,17 @@ const initViewerApp = function (initPropID) {
             }
             this.initViewerEngine();
         },
+        watch:{
+            loadPercentage: function(val){
+                const loader = document.getElementById('planViewerLoaderBar');
+                if(loader !=null){
+                    loader.style.width = Math.min(this.loadPercentage, 80) + '%';
+                }
+                if(val>=80){
+                    this.isLoaded = true;
+                }
+            },
+        },
         methods:{
             getParticulars(){
                 return propertyParticulars;
@@ -139,6 +152,7 @@ const initViewerApp = function (initPropID) {
                 return isIOS;
             },
             initViewerEngine(){
+                this.loadPercentage += 10;
                 this.canvasWidth = this.canvas.getBoundingClientRect().width;
                 this.canvasHeight = this.canvas.getBoundingClientRect().height;
                 this.renderer = new THREE.WebGLRenderer({canvas: this.canvas, antialias:true});
@@ -171,6 +185,7 @@ const initViewerApp = function (initPropID) {
                     threshold: 0.1,
                 });
                 observer.observe(document.getElementById('planViewerCanvas'));
+                this.loadPercentage += 10;
             },
             gltFLoaded(gltf){
                 this.model = gltf.scene;
@@ -179,30 +194,31 @@ const initViewerApp = function (initPropID) {
                 gltf.scene.scale.set(1,1,1);
                 gltf.scene.position.set(0,0,0);
                 const p1 = new THREE.PointLight( 0xffffff, 15, 100 );
-                p1.position.set( -2, 6.5, 3 );
+                p1.position.set( -2, 6, 3 );
                 this.scene.add( p1 );
-                const p2 = new THREE.PointLight( 0xffffff, 25, 100 );
-                p2.position.set( -2, 6.5, -4 );
+                const p2 = new THREE.PointLight( 0xffffff, 15, 100 );
+                p2.position.set( -2, 6, -4 );
                 this.scene.add( p2 );
-                const p3 = new THREE.PointLight( 0xffffff, 25, 100 );
-                p3.position.set( -2, 6.5, -8 );
+                const p3 = new THREE.PointLight( 0xffffff, 15, 100 );
+                p3.position.set( -2, 6, -8 );
                 this.scene.add( p3 );
-                const p4 = new THREE.PointLight( 0xffffff, 25, 100 );
-                p4.position.set( -10, 6.5, 0 );
+                const p4 = new THREE.PointLight( 0xffffff, 15, 100 );
+                p4.position.set( -10, 6, 0 );
                 this.scene.add( p4 );
-                const p5 = new THREE.PointLight( 0xffffff, 25, 100 );
-                p5.position.set( -12, 6.5, 6 );
+                const p5 = new THREE.PointLight( 0xffffff, 15, 100 );
+                p5.position.set( -12, 6, 6 );
                 this.scene.add( p5 );
-                const p6 = new THREE.PointLight( 0xffffff, 25, 100 );
-                p6.position.set( 13, 6.5, 5 );
+                const p6 = new THREE.PointLight( 0xffffff, 15, 100 );
+                p6.position.set( 13, 6, 5 );
                 this.scene.add( p6 );
-                const p7 = new THREE.PointLight( 0xffffff, 25, 100 );
-                p7.position.set( 12, 6.5, -5 );
+                const p7 = new THREE.PointLight( 0xffffff, 15, 100 );
+                p7.position.set( 12, 6, -5 );
                 this.scene.add( p7 );
                 // const sphereSize = 1;
                 // const pointLightHelper = new THREE.PointLightHelper( p1, sphereSize );
                 // this.scene.add( pointLightHelper );
                 this.scene.add(gltf.scene);
+                this.loadPercentage += 50;
             },
             bgLoadComplete(texture){
                 this.skybox = new GroundProjectedSkybox( texture );
@@ -210,6 +226,7 @@ const initViewerApp = function (initPropID) {
                 this.skybox.height = 80;
 				this.scene.add( this.skybox );
                 this.skybox.visible = false;
+                this.loadPercentage += 10;
             },
             startRendering(){
                 this.renderer.setAnimationLoop(this.animate);
@@ -451,7 +468,7 @@ const initViewerApp = function (initPropID) {
         },
         template: `
             <div id="planViewerContainer" class="planViewerContainerSmall">
-                <div id="planViewerControlsDiv">
+                <div id="planViewerControlsDiv" v-if="isLoaded">
                     <button class="planViewerControls" style="padding:0.5rem" @click="resetPlanView()">
                         <img style="height:100%; width:100%" src="./assets/images/reset.svg">
                     </button>
@@ -462,14 +479,19 @@ const initViewerApp = function (initPropID) {
                         <img style="height:100%; width:100%" src="./assets/images/ios-arkit.svg">
                     </button>
                 </div>
-                <div v-if="isBigCanvas()" id="fullScreenControls">
+                <div v-if="isBigCanvas() && isLoaded" id="fullScreenControls">
                     <button class="planViewerControls" style="padding:0.65rem" @click="toggleFullScreen()">
                         <img v-if="isFullScreen" style="height:100%; width:100%" src="./assets/images/minimize.svg">
                         <img v-else style="height:100%; width:100%" src="./assets/images/fullscreen.svg">
                     </button>
                 </div>
                 <canvas id="planViewerCanvas"></canvas>
-                <div class="annotationDiv" :id="'annotation'+particular.no" v-for="particular in getParticulars()" @click="moveToView(particular)" :title="particular.name">{{particular.no}}</div>
+                <div id="planViewerLoader" v-if="!isLoaded">
+                    <div id="planViewerLoaderBar"></div>
+                </div>
+                <div :style="{'opacity' : isLoaded ? '1' : '0'}" class="annotationDiv" :id="'annotation'+particular.no" v-for="particular in getParticulars()" @click="moveToView(particular)" :title="particular.name">
+                    {{particular.no}}
+                </div>
                 <canvas id="planViewerAnnotationCanvas"></canvas>
                 <div id="planParticularsContainer" class="planParticularsContainerSmall">
                     <div class="planParticularsDiv" v-for="particular in getParticulars()" @click="moveToView(particular)">
