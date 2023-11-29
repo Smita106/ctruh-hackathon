@@ -1,5 +1,5 @@
 import {initHomeApp} from './components/controllers/homeappcontroller';
-import { initViewerApp } from './components/controllers/propertyviewer';
+import { initViewerApp, goingVR } from './components/controllers/propertyviewer';
 
 
 async function initHome(){
@@ -26,7 +26,7 @@ function removeLandscapeWarning(){
     }
 }
 function orientationManager(type){
-    if(mobileDevice && (type == 'landscape-primary' || type == 'landscape-secondary')){
+    if(mobileDevice && (type == 'landscape-primary' || type == 'landscape-secondary') && !goingVR){
         displayLandscapeWarning();
     }else{
         removeLandscapeWarning();

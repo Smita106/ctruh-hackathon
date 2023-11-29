@@ -5,6 +5,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { GroundProjectedSkybox } from 'three/addons/objects/GroundProjectedSkybox.js';
+import { VRButton } from 'three/addons/webxr/VRButton.js';
 
 let viewerApp;
 let bigCanvas = true;
@@ -13,6 +14,9 @@ let isIOS = false;
 let prevScrollpos = window.screenY;
 let sprite;
 let maxFov;
+
+//Global variable to identify VR mode for device orientation handler in main.js
+let goingVR = false;
 const propertyParticulars = [
     {
         no: 1,
@@ -122,9 +126,12 @@ const initViewerApp = function (initPropID) {
                 immersiveMode : false,
                 isFullScreen: false,
                 loadPercentage : 10,
+                vrSupported : false,
+                showRotateMessage: false,
             };
         },
         created(){
+            navigator.xr.isSessionSupported( 'immersive-vr' ).then(this.verifyVR);
         },
         mounted(){
             this.canvas = document.getElementById('planViewerCanvas');
@@ -141,6 +148,8 @@ const initViewerApp = function (initPropID) {
                 }
                 if(val>=80){
                     this.isLoaded = true;
+                    if(this.vrSupported)
+                        setTimeout(this.initVR, 1000);
                 }
             },
         },
@@ -150,6 +159,46 @@ const initViewerApp = function (initPropID) {
             },
             isIOSDevice(){
                 return isIOS;
+            },
+            isLandScape(){
+                return (screen.orientation.type == 'landscape-primary' || screen.orientation.type == 'landscape-secondary')
+            },
+            verifyVR(supported){
+                if(supported){
+                    this.vrSupported = true;
+                }
+            },
+            initVR(){
+                this.renderer.xr.enabled = true;
+				this.renderer.xr.setReferenceSpaceType( 'local' );
+                this.vrButton = VRButton.createButton( this.renderer );
+            },
+            openVRView(){
+                if(this.vrButton != null || this.vrButton != undefined){
+                    goingVR = true;
+                    this.showRotateMessage = true;
+                }
+            },
+            verifyLandscapeAndProceed(){
+                if(screen.orientation.type == 'landscape-primary' || screen.orientation.type == 'landscape-secondary'){
+                    this.canvas.style.width = window.innerWidth + 'px';
+                    this.canvas.style.height = window.innerHeight + 'px';
+                    this.showRotateMessage = false;
+                    this.initiateVRView();
+                }else{
+                    alert("Please rotate to landscape and proceed");
+                }
+            },
+            cancelVR(){
+                goingVR = false;
+                const container = document.createElement("div");
+                container.setAttribute("id", "landscapeStopperDiv");
+                container.innerHTML = '<h1>Please turn back to potrail mode for better experience</h1>';
+                document.body.appendChild(container);
+                this.showRotateMessage = false
+            },
+            initiateVRView(){
+                this.vrButton.click();
             },
             initViewerEngine(){
                 this.loadPercentage += 10;
@@ -450,6 +499,13 @@ const initViewerApp = function (initPropID) {
             }
         },
         template: `
+            <div id="rotatePhoneMessageDiv" v-if="showRotateMessage">
+                <div style="color:white">Rotate your phone to landscape mode and click proceed</div>
+                <div>
+                    <button id="rotateScreenButtonCancel" @click="cancelVR()">Cancel</button>
+                    <button id="rotateScreenButton" @click="verifyLandscapeAndProceed()">Proceed</button>
+                </div>
+            </div>
             <div id="planViewerContainer" class="planViewerContainerSmall">
                 <div id="planViewerControlsDiv" v-if="isLoaded">
                     <button class="planViewerControls" style="padding:0.5rem" @click="resetPlanView()">
@@ -460,6 +516,11 @@ const initViewerApp = function (initPropID) {
                     </a>
                     <button v-if="!isIOSDevice() && !isBigCanvas()" class="planViewerControls" @click="openARView()">
                         <img style="height:100%; width:100%" src="./assets/images/ios-arkit.svg">
+                    </button>
+                </div>
+                <div id="planViewerVRControlsDiv" v-if="vrSupported">
+                    <button class="planViewerControls" @click="openVRView()">
+                        <img style="height:100%; width:100%" src="./assets/images/vr.svg">
                     </button>
                 </div>
                 <div v-if="isBigCanvas() && isLoaded" id="fullScreenControls">
@@ -879,4 +940,4 @@ const initViewerApp = function (initPropID) {
     return viewerApp;
 }
 
-export {initViewerApp};
+export {initViewerApp, goingVR};
