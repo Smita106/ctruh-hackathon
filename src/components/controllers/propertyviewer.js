@@ -630,6 +630,15 @@ const initViewerApp = function (initPropID) {
             <headercmp></headercmp>
             <div id="viewerBody">
                 <div id="sidenav">
+                 <a class="sidenavItem" :class="activeSection == 'walkThroughSection' ? 'activeSideNavItem' : ''" href="#walkThroughSection" @click="setActiveSection('walkThroughSection')">
+                        <span class="sidenavIconContainer">
+                            <svg class="sidenavIcon" viewBox="0 0 6 12" fill="none">
+                                <g clip-path="url(#clip0)"><path d="M1.09961 9.94287H1.59961V6.55713H1.09961C0.823459 6.55713 0.599609 6.34727 0.599609 6.08838V4.96875C0.599609 4.70986 0.823459 4.5 1.09961 4.5H3.89961C4.17576 4.5 4.39961 4.70986 4.39961 4.96875V9.94287H4.89961C5.17576 9.94287 5.39961 10.1527 5.39961 10.4116V11.5312C5.39961 11.7901 5.17576 12 4.89961 12H1.09961C0.823459 12 0.599609 11.7901 0.599609 11.5312V10.4116C0.599609 10.1527 0.823459 9.94287 1.09961 9.94287ZM2.99961 0C2.00548 0 1.19961 0.755508 1.19961 1.6875C1.19961 2.61949 2.00548 3.375 2.99961 3.375C3.99373 3.375 4.79961 2.61949 4.79961 1.6875C4.79961 0.755508 3.99371 0 2.99961 0Z" fill="white"></path></g>
+                                <defs><clipPath id="clip0"><rect width="4.8" height="12" fill="white" transform="translate(0.599609)"></rect></clipPath></defs>
+                            </svg>
+                        </span>
+                        <span class="sidenameItemTitle" :class="activeSection == 'walkThroughSection' ? 'activeSidenameItemTitle' : ''" >Walk Through</span>
+                    </a>
                     <a class="sidenavItem" :class="activeSection == 'overviewSection' ? 'activeSideNavItem' : ''" href="#overviewSection" @click="setActiveSection('overviewSection')">
                         <span class="sidenavIconContainer">
                             <svg class="sidenavIcon" viewBox="0 0 6 12" fill="none">
